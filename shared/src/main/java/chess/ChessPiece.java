@@ -54,8 +54,85 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        ChessPiece piece = board.getPiece(myPosition);
         var moves = new HashSet<ChessMove>();
-        moves.add(new ChessMove(new ChessPosition(5, 4), new ChessPosition(6, 5), null));
+
+        if (piece.getPieceType() == PieceType.BISHOP) {
+            // the bishop can move in a diagonal line as far as possible
+            // so: it's curr position +/- the same amount on both the row/col until an edge is reached
+
+            // moving towards the upper left diagonal
+            var row = myPosition.getRow() + 1;
+            var col = myPosition.getColumn() + 1;
+            while (row != 9 && col != 9) {
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row++;
+                col++;
+            }
+            // moving towards the upper right diagonal
+            row = myPosition.getRow() + 1;
+            col = myPosition.getColumn() - 1;
+            while (row != 9 && col != 0) {
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row++;
+                col--;
+            }
+            // moving towards the lower left diagonal
+            row = myPosition.getRow() - 1;
+            col = myPosition.getColumn() + 1;
+            while (row != 0 && col != 9) {
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row--;
+                col++;
+            }
+            // moving towards the lower right diagonal
+            row = myPosition.getRow() - 1;
+            col = myPosition.getColumn() - 1;
+            while (row != 0 && col != 0) {
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row--;
+                col--;
+            }
+
+        } else if (piece.getPieceType() == PieceType.KING) {
+            // imagine starting position is 3,3
+            // possible moves: 3:2, 3:4, 2:3, 4:3, 4:4, 2:2, 2:4, 4:2
+            // so: curr position +/- 1 from the row/col/both unless an edge is reached
+
+            // loop through all the squares around the king (for -1, 0, 1)
+            for (var rowShift = -1; rowShift <= 1; rowShift++) {
+                for (var colShift = -1; colShift <= 1; colShift++) {
+                    // starts with: row=-1, col=-1
+                    // move=2,2
+
+                    // don't include the curr position itself
+                    if (rowShift == 0 && colShift == 0) {
+                        continue;
+                    }
+
+                    // calculate row/col values for the current move
+                    var newRow = myPosition.getRow() + rowShift;
+                    var newCol = myPosition.getColumn() + colShift;
+
+                    // check for edges
+                    if (newRow == 9 || newRow == 0 || newCol == 9 || newCol == 0) {
+                        continue;
+                    }
+
+                    // add the move
+                    moves.add(new ChessMove(myPosition, new ChessPosition(newRow, newCol), null));
+                }
+            }
+
+        } else if (piece.getPieceType() == PieceType.PAWN) {
+            
+        } else if (piece.getPieceType() == PieceType.KNIGHT) {
+
+        } else if (piece.getPieceType() == PieceType.QUEEN) {
+
+        } else if (piece.getPieceType() == PieceType.ROOK) {
+
+        }
         return moves;
     }
 
