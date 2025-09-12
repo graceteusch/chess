@@ -58,7 +58,7 @@ public class ChessPiece {
 
         // base case: return if an edge is reached
         // later add code for running into another piece
-        if (newRow == 0 || newRow == 9 || newCol == 0 || newCol == 9) {
+        if (newRow <= 0 || newRow >= 9 || newCol <= 0 || newCol >= 9) {
             return moves;
         } else {
             ChessPosition movedPosition = new ChessPosition(newRow, newCol);
