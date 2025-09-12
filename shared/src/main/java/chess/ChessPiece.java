@@ -46,11 +46,15 @@ public class ChessPiece {
         return type;
     }
 
-    public Collection<ChessMove> calculateChessMoves(ChessPosition start, ChessPosition currPosition, int rowShift, int colShift, Collection<ChessMove> moves, boolean recurse) {
+    public Collection<ChessMove> calculateChessMoves(
+            ChessBoard board, ChessPosition start, ChessPosition currPosition,
+            int rowShift, int colShift, Collection<ChessMove> moves, boolean recurse) {
+
         var currRow = currPosition.getRow();
         var currCol = currPosition.getColumn();
         var newRow = currRow + rowShift;
         var newCol = currCol + colShift;
+        ChessPiece myPiece = board.getPiece(start);
 
         // base case: return if an edge is reached
         // later add code for running into another piece
@@ -58,9 +62,21 @@ public class ChessPiece {
             return moves;
         } else {
             ChessPosition movedPosition = new ChessPosition(newRow, newCol);
-            moves.add(new ChessMove(start, movedPosition, null));
-            if (recurse) {
-                return calculateChessMoves(start, movedPosition, rowShift, colShift, moves, true);
+            ChessPiece enemy = board.getPiece(movedPosition);
+            if (!recurse && (enemy == null || enemy.getTeamColor() != myPiece.getTeamColor())) {
+                // no recursion, move to the square if it is empty or if the enemy piece is opposite color
+                moves.add(new ChessMove(start, movedPosition, null));
+                return moves;
+            } else if (enemy == null) {
+                // recursion - square is empty so continue on normally with recursion
+                moves.add(new ChessMove(start, movedPosition, null));
+                return calculateChessMoves(board, start, movedPosition, rowShift, colShift, moves, true);
+            } else {
+                // recursive, but the square is NOT empty, so check if it is opposite color and can therefore be captured
+                if (enemy.getTeamColor() != myPiece.getTeamColor()) {
+                    moves.add(new ChessMove(start, movedPosition, null));
+                    return moves;
+                }
             }
             return moves;
         }
@@ -75,6 +91,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
+
         var moves = new HashSet<ChessMove>();
 
         if (piece.getPieceType() == PieceType.BISHOP) {
@@ -83,13 +100,13 @@ public class ChessPiece {
             // start with curr position +/- 1 on both the row/col
 
             // moving towards the upper left diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, 1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, 1, moves, true));
             // moving towards the upper right diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, -1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, -1, moves, true));
             // moving towards the lower left diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, 1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, 1, moves, true));
             // moving towards the lower right diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, -1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, -1, moves, true));
 
         } else if (piece.getPieceType() == PieceType.KING) {
             // imagine starting position is 3,3
@@ -97,75 +114,74 @@ public class ChessPiece {
             // so: curr position +/- 1 from the row/col/both unless an edge is reached
 
             // moving forward
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, 0, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, 0, moves, false));
             // moving right
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 0, 1, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 0, 1, moves, false));
             // moving backwards
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, 0, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, 0, moves, false));
             // moving left
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 0, -1, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 0, -1, moves, false));
 
             // moving towards the upper left diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, 1, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, 1, moves, false));
             // moving towards the upper right diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, -1, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, -1, moves, false));
             // moving towards the lower left diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, 1, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, 1, moves, false));
             // moving towards the lower right diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, -1, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, -1, moves, false));
 
         } else if (piece.getPieceType() == PieceType.PAWN) {
 
-
         } else if (piece.getPieceType() == PieceType.KNIGHT) {
             // moving 2 up and 1 left
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 2, -1, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 2, -1, moves, false));
             // moving 2 up and 1 right
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 2, 1, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 2, 1, moves, false));
             // moving 2 right and 1 up
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, 2, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, 2, moves, false));
             // moving 2 right and 1 down
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, 2, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, 2, moves, false));
             // moving 2 down and 1 right
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -2, 1, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -2, 1, moves, false));
             // moving 2 down and 1 left
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -2, -1, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -2, -1, moves, false));
             // moving 2 left and 1 down
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, -2, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, -2, moves, false));
             // moving 2 left and 1 up
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, -2, moves, false));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, -2, moves, false));
 
         } else if (piece.getPieceType() == PieceType.QUEEN) {
             // rook moves:
             // moving forward
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, 0, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, 0, moves, true));
             // moving right
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 0, 1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 0, 1, moves, true));
             // moving backwards
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, 0, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, 0, moves, true));
             // moving left
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 0, -1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 0, -1, moves, true));
 
             // bishop moves:
             // moving towards the upper left diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, 1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, 1, moves, true));
             // moving towards the upper right diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, -1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, -1, moves, true));
             // moving towards the lower left diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, 1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, 1, moves, true));
             // moving towards the lower right diagonal
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, -1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, -1, moves, true));
 
 
         } else if (piece.getPieceType() == PieceType.ROOK) {
             // moving forward
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, 0, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, 0, moves, true));
             // moving right
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 0, 1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 0, 1, moves, true));
             // moving backwards
-            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, 0, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, 0, moves, true));
             // moving left
-            moves.addAll(calculateChessMoves(myPosition, myPosition, 0, -1, moves, true));
+            moves.addAll(calculateChessMoves(board, myPosition, myPosition, 0, -1, moves, true));
         }
         return moves;
     }
