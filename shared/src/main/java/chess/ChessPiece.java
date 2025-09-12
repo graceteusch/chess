@@ -96,27 +96,26 @@ public class ChessPiece {
             // possible moves: 3:2, 3:4, 2:3, 4:3, 4:4, 2:2, 2:4, 4:2
             // so: curr position +/- 1 from the row/col/both unless an edge is reached
 
-            // loop through all the squares around the king (for -1, 0, 1)
-            for (var rowShift = -1; rowShift <= 1; rowShift++) {
-                for (var colShift = -1; colShift <= 1; colShift++) {
-                    // don't include the curr position itself
-                    if (rowShift == 0 && colShift == 0) {
-                        continue;
-                    }
+            // moving forward
+            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, 0, moves, false));
+            // moving right
+            moves.addAll(calculateChessMoves(myPosition, myPosition, 0, 1, moves, false));
+            // moving backwards
+            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, 0, moves, false));
+            // moving left
+            moves.addAll(calculateChessMoves(myPosition, myPosition, 0, -1, moves, false));
 
-                    // calculate row/col values for the current move
-                    var newRow = myPosition.getRow() + rowShift;
-                    var newCol = myPosition.getColumn() + colShift;
-                    // check for edges
-                    if (newRow == 9 || newRow == 0 || newCol == 9 || newCol == 0) {
-                        continue;
-                    }
-                    // add the move
-                    moves.add(new ChessMove(myPosition, new ChessPosition(newRow, newCol), null));
-                }
-            }
+            // moving towards the upper left diagonal
+            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, 1, moves, false));
+            // moving towards the upper right diagonal
+            moves.addAll(calculateChessMoves(myPosition, myPosition, 1, -1, moves, false));
+            // moving towards the lower left diagonal
+            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, 1, moves, false));
+            // moving towards the lower right diagonal
+            moves.addAll(calculateChessMoves(myPosition, myPosition, -1, -1, moves, false));
 
         } else if (piece.getPieceType() == PieceType.PAWN) {
+
 
         } else if (piece.getPieceType() == PieceType.KNIGHT) {
             // moving 2 up and 1 left
