@@ -77,10 +77,24 @@ public class ChessPiece {
 
         // add valid diagonal moves to list
         if (pawnEnemyRight != null && pawnEnemyRight.getTeamColor() != pawn.getTeamColor()) {
-            diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol + 1), null));
+            if ((currRow + orientation) == 8 || (currRow + orientation) == 1) {
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol + 1), PieceType.QUEEN));
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol + 1), PieceType.KNIGHT));
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol + 1), PieceType.ROOK));
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol + 1), PieceType.BISHOP));
+            } else {
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol + 1), null));
+            }
         }
         if (pawnEnemyLeft != null && pawnEnemyLeft.getTeamColor() != pawn.getTeamColor()) {
-            diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol - 1), null));
+            if ((currRow + orientation) == 8 || (currRow + orientation) == 1) {
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol - 1), PieceType.QUEEN));
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol - 1), PieceType.KNIGHT));
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol - 1), PieceType.ROOK));
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol - 1), PieceType.BISHOP));
+            } else {
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + orientation, currCol - 1), null));
+            }
         }
         return diagonalMoves;
     }
@@ -98,7 +112,6 @@ public class ChessPiece {
         ChessPiece enemy = board.getPiece(movedPosition);
 
         if (myPiece.getPieceType() == PieceType.PAWN) {
-
             // get pawn orientation
             int pawnOrientation;
             if (myPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
@@ -108,7 +121,6 @@ public class ChessPiece {
             }
             // check if it's the pawn's first move
             boolean firstMove = checkIfFirstMove(myPiece, currPosition);
-
             // check if there is a piece directly in front of the pawn
             ChessPiece pieceDirectlyInFront = board.getPiece(new ChessPosition(currRow + pawnOrientation, currCol));
 
@@ -118,7 +130,15 @@ public class ChessPiece {
                     moves.add(new ChessMove(start, movedPosition, null));
                 }
             } else if (pieceDirectlyInFront == null) {
-                moves.add(new ChessMove(start, movedPosition, null));
+                // check for promotion (is the pawn moving to the end of the board?)
+                if (newRow == 8 || newRow == 1) {
+                    moves.add(new ChessMove(start, movedPosition, PieceType.QUEEN));
+                    moves.add(new ChessMove(start, movedPosition, PieceType.KNIGHT));
+                    moves.add(new ChessMove(start, movedPosition, PieceType.ROOK));
+                    moves.add(new ChessMove(start, movedPosition, PieceType.BISHOP));
+                } else {
+                    moves.add(new ChessMove(start, movedPosition, null));
+                }
             }
             // add diagonal moves if an enemy is present
             moves.addAll(findPawnEnemies(board, myPiece, currPosition, pawnOrientation));
