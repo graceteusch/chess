@@ -1,8 +1,6 @@
 package chess;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents a single chess piece
@@ -46,6 +44,71 @@ public class ChessPiece {
         return type;
     }
 
+    public boolean checkIfFirstMove(ChessPiece pawn, ChessPosition pawnPosition) {
+        if (pawn.getTeamColor() == ChessGame.TeamColor.WHITE && pawnPosition.getRow() == 2) {
+            return true;
+        } else if (pawn.getTeamColor() == ChessGame.TeamColor.BLACK && pawnPosition.getRow() == 7) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public HashSet<ChessMove> findPawnEnemies(ChessBoard board, ChessPiece pawn, ChessPosition pawnPosition) {
+        int currRow = pawnPosition.getRow();
+        int currCol = pawnPosition.getColumn();
+        HashSet<ChessMove> diagonalMoves = new HashSet<ChessMove>();
+
+        // get color (diagonal moves are opposites depending on color)
+        ChessGame.TeamColor pawnColor = pawn.getTeamColor();
+
+        // create vars for right and left places
+        ChessPiece pawnEnemyRight;
+        ChessPiece pawnEnemyLeft;
+
+        // find enemies based on color
+        if (pawnColor == ChessGame.TeamColor.WHITE) {
+            // only get one diagonal if pawn is on the edge
+            if (currCol == 8) {
+                pawnEnemyRight = null;
+                pawnEnemyLeft = board.getPiece(new ChessPosition(currRow + 1, currCol - 1));
+            } else if (currCol == 1) {
+                pawnEnemyRight = board.getPiece(new ChessPosition(currRow + 1, currCol + 1));
+                pawnEnemyLeft = null;
+            } else {
+                pawnEnemyRight = board.getPiece(new ChessPosition(currRow + 1, currCol + 1));
+                pawnEnemyLeft = board.getPiece(new ChessPosition(currRow + 1, currCol - 1));
+            }
+            // add valid diagonal moves to list
+            if (pawnEnemyRight != null && pawnEnemyRight.getTeamColor() != pawn.getTeamColor()) {
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + 1, currCol + 1), null));
+            }
+            if (pawnEnemyLeft != null && pawnEnemyLeft.getTeamColor() != pawn.getTeamColor()) {
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow + 1, currCol - 1), null));
+            }
+        } else {
+            // only get one diagonal if pawn is on the edge
+            if (currCol == 8) {
+                pawnEnemyRight = null;
+                pawnEnemyLeft = board.getPiece(new ChessPosition(currRow - 1, currCol - 1));
+            } else if (currCol == 1) {
+                pawnEnemyRight = board.getPiece(new ChessPosition(currRow - 1, currCol + 1));
+                pawnEnemyLeft = null;
+            } else {
+                pawnEnemyRight = board.getPiece(new ChessPosition(currRow - 1, currCol + 1));
+                pawnEnemyLeft = board.getPiece(new ChessPosition(currRow - 1, currCol - 1));
+            }
+            // add valid diagonal moves to list
+            if (pawnEnemyRight != null && pawnEnemyRight.getTeamColor() != pawn.getTeamColor()) {
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow - 1, currCol + 1), null));
+            }
+            if (pawnEnemyLeft != null && pawnEnemyLeft.getTeamColor() != pawn.getTeamColor()) {
+                diagonalMoves.add(new ChessMove(pawnPosition, new ChessPosition(currRow - 1, currCol - 1), null));
+            }
+        }
+        return diagonalMoves;
+    }
+
     public Collection<ChessMove> calculateChessMoves(
             ChessBoard board, ChessPosition start, ChessPosition currPosition,
             int rowShift, int colShift, Collection<ChessMove> moves, boolean recurse) {
@@ -55,14 +118,34 @@ public class ChessPiece {
         var newRow = currRow + rowShift;
         var newCol = currCol + colShift;
         ChessPiece myPiece = board.getPiece(start);
+        ChessPosition movedPosition = new ChessPosition(newRow, newCol);
+        ChessPiece enemy = board.getPiece(movedPosition);
+
+        if (myPiece.getPieceType() == PieceType.PAWN) {
+            // check if there is a piece directly in front of the pawn
+            ChessPiece pieceDirectlyInFront;
+            if (myPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                pieceDirectlyInFront = board.getPiece(new ChessPosition(currRow + 1, currCol));
+            } else {
+                pieceDirectlyInFront = board.getPiece(new ChessPosition(currRow - 1, currCol));
+            }
+            // add normal forward move (as long as there isn't a piece directly in front)
+            if (enemy == null && pieceDirectlyInFront == null) {
+                moves.add(new ChessMove(start, movedPosition, null));
+            }
+
+            // add diagonal moves if an enemy is present
+            moves.addAll(findPawnEnemies(board, myPiece, currPosition));
+            // return all moves
+            return moves;
+        }
 
         // base case: return if an edge is reached
         // later add code for running into another piece
         if (newRow <= 0 || newRow >= 9 || newCol <= 0 || newCol >= 9) {
             return moves;
         } else {
-            ChessPosition movedPosition = new ChessPosition(newRow, newCol);
-            ChessPiece enemy = board.getPiece(movedPosition);
+
             if (!recurse && (enemy == null || enemy.getTeamColor() != myPiece.getTeamColor())) {
                 // no recursion, move to the square if it is empty or if the enemy piece is opposite color
                 moves.add(new ChessMove(start, movedPosition, null));
@@ -132,6 +215,26 @@ public class ChessPiece {
             moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, -1, moves, false));
 
         } else if (piece.getPieceType() == PieceType.PAWN) {
+            // add a check for pawns to the calculator function to check diagonally for enemies
+
+            // get pawn's color
+            ChessGame.TeamColor pawnColor = piece.getTeamColor();
+            // check if it's the pawn's first move
+            boolean firstMove = checkIfFirstMove(piece, myPosition);
+            if (firstMove && pawnColor == ChessGame.TeamColor.WHITE) {
+                // if first move, move forward 2 (OR move forward 1)
+                moves.addAll(calculateChessMoves(board, myPosition, myPosition, 2, 0, moves, false));
+            } else if (firstMove && pawnColor == ChessGame.TeamColor.BLACK) {
+                // if first move, move forward 2 (OR move forward 1)
+                moves.addAll(calculateChessMoves(board, myPosition, myPosition, -2, 0, moves, false));
+            }
+            // move forward 1 (no matter if it's the first turn or not)
+            if (pawnColor == ChessGame.TeamColor.WHITE) {
+                moves.addAll(calculateChessMoves(board, myPosition, myPosition, 1, 0, moves, false));
+            } else {
+                moves.addAll(calculateChessMoves(board, myPosition, myPosition, -1, 0, moves, false));
+            }
+
 
         } else if (piece.getPieceType() == PieceType.KNIGHT) {
             // moving 2 up and 1 left
