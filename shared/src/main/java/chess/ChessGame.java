@@ -167,7 +167,6 @@ public class ChessGame {
             }
         }
 
-
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
@@ -242,12 +241,12 @@ public class ChessGame {
                     if (currPiece == null || currPiece.getTeamColor() != teamColor) {
                         continue;
                     }
-                    if (validMoves(new ChessPosition(row, col)).isEmpty()) {
-                        return true;
+                    if (!validMoves(new ChessPosition(row, col)).isEmpty()) {
+                        return false;
                     }
                 }
             }
-            return false;
+            return true;
         }
     }
 
