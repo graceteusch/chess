@@ -20,6 +20,7 @@ public class ChessGame {
     public ChessGame() {
         currTeamTurn = TeamColor.WHITE;
         board = new ChessBoard();
+        board.resetBoard();
         whiteKing = new ChessPosition(1, 5);
         blackKing = new ChessPosition(8, 5);
     }
@@ -92,6 +93,7 @@ public class ChessGame {
 
             // move piece and check if it puts the board into check
             board.removePiece(startPosition, pieceToMove);
+            ChessPiece capturedPiece = board.getPiece(move.getEndPosition()); // save the piece that is being captured
             board.addPiece(move.getEndPosition(), pieceToMove);
             if (!isInCheck(currTeam)) {
                 validMoves.add(move);
@@ -99,6 +101,7 @@ public class ChessGame {
 
             // put piece back to original spot
             board.removePiece(move.getEndPosition(), pieceToMove);
+            board.addPiece(move.getEndPosition(), capturedPiece); // add captured piece back to original spot
             board.addPiece(startPosition, pieceToMove);
 
         }
@@ -255,7 +258,6 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
-        System.out.println(board);
     }
 
     /**
