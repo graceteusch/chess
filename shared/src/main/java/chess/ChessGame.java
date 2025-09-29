@@ -136,6 +136,7 @@ public class ChessGame {
                 }
             }
         }
+        throw new InvalidMoveException("Move provided is NOT VALID.");
     }
 
     /**
