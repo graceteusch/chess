@@ -134,9 +134,12 @@ public class ChessGame {
                         blackKing = move.getEndPosition();
                     }
                 }
+            } else {
+                throw new InvalidMoveException("Move provided is NOT VALID.");
             }
+        } else {
+            throw new InvalidMoveException("Move provided is NOT VALID.");
         }
-        throw new InvalidMoveException("Move provided is NOT VALID.");
     }
 
     /**
