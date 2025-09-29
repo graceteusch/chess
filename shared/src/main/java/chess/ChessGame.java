@@ -125,7 +125,13 @@ public class ChessGame {
             if (validMoves.contains(move)) {
                 // make the move (remove the piece from where it's at and add it to the new position)
                 board.removePiece(move.getStartPosition(), pieceToMove);
-                board.addPiece(move.getEndPosition(), pieceToMove);
+                if (move.getPromotionPiece() != null) {
+                    board.addPiece(move.getEndPosition(), new ChessPiece(pieceToMove.getTeamColor(), move.getPromotionPiece()));
+                } else {
+                    board.addPiece(move.getEndPosition(), pieceToMove);
+                }
+
+
                 // if the piece that just moved is a king, update the king's location to keep track
                 if (pieceToMove.getPieceType() == ChessPiece.PieceType.KING) {
                     if (pieceToMove.getTeamColor() == TeamColor.WHITE) {
