@@ -131,7 +131,6 @@ public class ChessGame {
                     board.addPiece(move.getEndPosition(), pieceToMove);
                 }
 
-
                 // if the piece that just moved is a king, update the king's location to keep track
                 if (pieceToMove.getPieceType() == ChessPiece.PieceType.KING) {
                     if (pieceToMove.getTeamColor() == TeamColor.WHITE) {
@@ -139,6 +138,13 @@ public class ChessGame {
                     } else {
                         blackKing = move.getEndPosition();
                     }
+                }
+
+                // change which team's turn it is
+                if (currTeamTurn == TeamColor.WHITE) {
+                    currTeamTurn = TeamColor.BLACK;
+                } else {
+                    currTeamTurn = TeamColor.WHITE;
                 }
             } else {
                 throw new InvalidMoveException("Move provided is NOT VALID.");
