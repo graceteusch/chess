@@ -75,21 +75,6 @@ public class ChessGame {
         Collection<ChessMove> pieceMoves = pieceToMove.pieceMoves(board, startPosition);
         // for each move in the piece moves
         for (ChessMove move : pieceMoves) {
-//            // create a temp duplicated version of the board
-//            ChessBoard movedBoard = new ChessBoard();
-//            for (int row = 1; row <= 8; row++) {
-//                for (int col = 1; col <= 8; col++) {
-//                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-//                    movedBoard.addPiece(new ChessPosition(row, col), piece);
-//                }
-//            }
-//            // make the move
-//            movedBoard.removePiece(startPosition, pieceToMove);
-//            movedBoard.addPiece(move.getEndPosition(), pieceToMove);
-//            // after making the move, check whether their team is now in check
-//            if (!isInCheck(currTeam)) {
-//                validMoves.add(move);
-//            }
 
             // move piece and check if it puts the board into check
             board.removePiece(startPosition, pieceToMove);
@@ -119,6 +104,11 @@ public class ChessGame {
         ChessPiece pieceToMove = board.getPiece(move.getStartPosition());
         // if there is actually a piece there
         if (pieceToMove != null) {
+            // make sure it's the right team's turn
+            if (pieceToMove.getTeamColor() != currTeamTurn) {
+                // wrong team's turn - throw an exception
+                throw new InvalidMoveException("Move provided is NOT VALID.");
+            }
             // get all the valid moves for that piece
             Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
             // if the move is a valid one
@@ -146,10 +136,10 @@ public class ChessGame {
                 } else {
                     currTeamTurn = TeamColor.WHITE;
                 }
-            } else {
+            } else { // invalid move - throw an exception
                 throw new InvalidMoveException("Move provided is NOT VALID.");
             }
-        } else {
+        } else {  // no piece to move - throw an exception
             throw new InvalidMoveException("Move provided is NOT VALID.");
         }
     }
@@ -161,18 +151,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        // Check every piece on the board (nested loop)
-        // if the piece is NOT NULL, and it's the OPPOSITE COLOR of the teamColor
-        // then check if any of their “piece moves” end at the King’s position, if so then the move is invalid
-
-        ChessPosition currTeamsKing = null;
-//        if (teamColor == TeamColor.WHITE) {
-//            currTeamsKing = whiteKing;
-//        } else {
-//            currTeamsKing = blackKing;
-//        }
-
         // find king
+        ChessPosition currTeamsKing = null;
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
@@ -183,10 +163,13 @@ public class ChessGame {
             }
         }
 
+        // check every piece on the board (nested loop)
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+                // if the piece exists (not null), and it's the OPPOSITE COLOR of the teamColor
                 if (piece != null && piece.getTeamColor() != teamColor) {
+                    // then check if any of its “piece moves” end at the King’s position - if so then the team IS in check
                     Collection<ChessMove> pieceMoves = piece.pieceMoves(board, new ChessPosition(row, col));
                     for (ChessMove move : pieceMoves) {
                         ChessPosition endPos = move.getEndPosition();
@@ -214,7 +197,6 @@ public class ChessGame {
             // loop through their valid moves
             // check for isInCheck each time
             // if isInCheck is never false then return true
-
             for (int row = 1; row <= 8; row++) {
                 for (int col = 1; col <= 8; col++) {
                     ChessPosition startPos = new ChessPosition(row, col);
