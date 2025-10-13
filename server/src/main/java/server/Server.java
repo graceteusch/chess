@@ -24,9 +24,9 @@ public class Server {
         String requestJson = ctx.body(); // returns a string that represents the body - request JSON
         var request = serializer.fromJson(requestJson, Map.class); // get the actual request (saved as a map)
 
-        // call to the service and register
+        // insert here - call to the service and register
 
-        // hardcoding an authToken for now
+        // for now - just hardcoding an authToken
         var response = Map.of("username", request.get("username"), "authToken", "xyz"); // normally service should create the authToken
 
         // serialize the response object you just created
