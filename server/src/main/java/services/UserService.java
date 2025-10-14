@@ -1,37 +1,40 @@
 package services;
 
 import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.DataAccessObject;
 import model.AuthData;
 import model.UserData;
-import services.requests.LoginRequest;
-import services.requests.LogoutRequest;
 import services.requests.RegisterRequest;
-import services.results.LoginResult;
-import services.results.LogoutResult;
 import services.results.RegisterResult;
 
 import java.util.UUID;
 
 public class UserService {
-    private final MemoryUserDAO userDAO;
-    private final MemoryAuthDAO authDAO;
+    private final DataAccessObject DAO;
 
-    public UserService(MemoryUserDAO userDAO, MemoryAuthDAO authDAO) {
-        this.userDAO = userDAO;
-        this.authDAO = authDAO;
+    public UserService(DataAccessObject DAO) {
+        this.DAO = DAO;
     }
 
     // generate a token when a user registers or logs in
-    public static String generateToken() {
+    private String generateAuthToken() {
         return UUID.randomUUID().toString();
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) {
+    // return AuthData and take UserData instead of using RegisterRequest/Results
+
+    // return new AuthData(user.username(), generateAuthToken());
+    public RegisterResult register(RegisterRequest registerRequest) throws Exception {
         String username = registerRequest.username();
         String password = registerRequest.password();
         String email = registerRequest.email();
+
+
+            if (DAO.getUser(username) != null) {
+                throw new Exception("already exists");
+
+
+
         // TODO: throw specific exceptions (like AlreadyTakenException) depending on the error
         // TODO: work on how the handler will take in the Register Result / how to determine the correct HTTP code (200, 403, etc.)
         // TODO: implement the DAO classes
@@ -40,7 +43,7 @@ public class UserService {
             // create userDAO object
             // call the userDAO object's getUser function
             // get back UserData
-            UserData userData = userDAO.getUser(username);
+            UserData userData = DAO.getUser(username);
             if (userData != null) {
                 // if data is NOT null, then return a failure response
                 return new RegisterResult(null, null, "[403] Error: already taken");
@@ -52,12 +55,12 @@ public class UserService {
             // if data is null
             // call the userDAO object's createUser function
             // create a new UserData object using the given fields and pass it to createUser
-            userDAO.insertUser(new UserData(username, password, email));
+            DAO.createUser(new UserData(username, password, email));
 
             // generate an authToken
-            String authToken = generateToken();
+            String authToken = generateAuthToken();
             // call the authDAO object's createAuth function
-            authDAO.createAuth(new AuthData(authToken, username));
+            DAO.createAuth(new AuthData(authToken, username));
 
             return new RegisterResult(username, authToken, "[200] Success");
 
