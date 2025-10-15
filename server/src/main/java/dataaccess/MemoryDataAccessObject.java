@@ -14,12 +14,12 @@ public class MemoryDataAccessObject implements DataAccessObject {
     private final HashMap<String, GameData> games = new HashMap<>();
 
     @Override
-    public void createUser(UserData user) throws DataAccessException {
+    public void createUser(UserData user) {
         users.put(user.username(), user);
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
+    public UserData getUser(String username) {
         return users.get(username);
     }
 
@@ -29,12 +29,12 @@ public class MemoryDataAccessObject implements DataAccessObject {
     }
 
     @Override
-    public void createAuth(AuthData auth) throws DataAccessException {
+    public void createAuth(AuthData auth) {
         auths.put(auth.authToken(), auth);
     }
 
     @Override
-    public AuthData getAuth(String authToken) throws DataAccessException {
+    public AuthData getAuth(String authToken) {
         return auths.get(authToken);
     }
 
@@ -44,16 +44,16 @@ public class MemoryDataAccessObject implements DataAccessObject {
     }
 
     @Override
-    public void clearAuths(String authToken) throws DataAccessException {
+    public void clearAuths(String authToken) {
         auths.clear();
     }
 
     @Override
-    public void createGame(GameData game) throws DataAccessException {
+    public void createGame(GameData game) {
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) {
         return null;
     }
 
@@ -73,7 +73,7 @@ public class MemoryDataAccessObject implements DataAccessObject {
     }
 
     @Override
-    public void clearGames() throws DataAccessException {
+    public void clearGames() {
         games.clear();
     }
 }

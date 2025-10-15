@@ -1,19 +1,16 @@
 package services;
 
-import dataaccess.DataAccessException;
 import dataaccess.DataAccessObject;
 import model.AuthData;
 import model.UserData;
-import services.requests.RegisterRequest;
-import services.results.RegisterResult;
 
 import java.util.UUID;
 
 public class UserService {
-    private final DataAccessObject DAO;
+    private final DataAccessObject dataAccess;
 
     public UserService(DataAccessObject DAO) {
-        this.DAO = DAO;
+        this.dataAccess = DAO;
     }
 
     // generate a token when a user registers or logs in
@@ -21,56 +18,39 @@ public class UserService {
         return UUID.randomUUID().toString();
     }
 
-    // return AuthData and take UserData instead of using RegisterRequest/Results
+    // return AuthData and take UserData instead of using RegisterRequest/Results !!
+    public AuthData register(UserData user) throws Exception {
+        String username = user.username();
+        String password = user.password();
+        String email = user.email();
 
-    // return new AuthData(user.username(), generateAuthToken());
-    public RegisterResult register(RegisterRequest registerRequest) throws Exception {
-        String username = registerRequest.username();
-        String password = registerRequest.password();
-        String email = registerRequest.email();
-
-
-            if (DAO.getUser(username) != null) {
-                throw new Exception("already exists");
-
-
-
-        // TODO: throw specific exceptions (like AlreadyTakenException) depending on the error
-        // TODO: work on how the handler will take in the Register Result / how to determine the correct HTTP code (200, 403, etc.)
-        // TODO: implement the DAO classes
-        // TODO: unit tests to make sure this actually works properly
-        try {
-            // create userDAO object
-            // call the userDAO object's getUser function
-            // get back UserData
-            UserData userData = DAO.getUser(username);
-            if (userData != null) {
-                // if data is NOT null, then return a failure response
-                return new RegisterResult(null, null, "[403] Error: already taken");
-            } else if (username == null) {
-                // return a failure response
-                return new RegisterResult(null, null, "[400] Error: bad request");
-            }
-
-            // if data is null
-            // call the userDAO object's createUser function
-            // create a new UserData object using the given fields and pass it to createUser
-            DAO.createUser(new UserData(username, password, email));
-
-            // generate an authToken
-            String authToken = generateAuthToken();
-            // call the authDAO object's createAuth function
-            DAO.createAuth(new AuthData(authToken, username));
-
-            return new RegisterResult(username, authToken, "[200] Success");
-
-
-            // return a success result
-        } catch (DataAccessException e) {
-            var message = "Error: ";
-            // return fail result
-            return new RegisterResult(null, null, "[500] Error: (description of error)");
+        if (dataAccess.getUser(username) != null) {
+            throw new Exception("already taken");
         }
+
+//        // create userDAO object
+//        // call the userDAO object's getUser function
+//        // get back UserData
+//        UserData userData = dataAccess.getUser(username);
+//        if (userData != null) {
+//            // if data is NOT null, then return a failure response
+//            return new RegisterResult(null, null, "[403] Error: already taken");
+//        } else if (username == null) {
+//            // return a failure response
+//            return new RegisterResult(null, null, "[400] Error: bad request");
+//        }
+
+        // if data is null
+        // call the userDAO createUser function
+        // create a new UserData object using the given fields and pass it to createUser
+        dataAccess.createUser(new UserData(username, password, email));
+
+        // generate an authToken
+        String authToken = generateAuthToken();
+        // call the authDAO object's createAuth function
+        dataAccess.createAuth(new AuthData(authToken, username));
+
+        return new AuthData(authToken, username);
     }
 
 //    public LoginResult login(LoginRequest loginRequest) {

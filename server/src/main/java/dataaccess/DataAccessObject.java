@@ -8,24 +8,24 @@ import java.util.Collection;
 
 public interface DataAccessObject {
 
-    void createUser(UserData u) throws DataAccessException;
+    void createUser(UserData u);
 
-    UserData getUser(String username) throws DataAccessException;
+    UserData getUser(String username);
 
     void clearUsers();
 
 
-    void createAuth(AuthData auth) throws DataAccessException;
+    void createAuth(AuthData auth);
 
-    AuthData getAuth(String authToken) throws DataAccessException;
+    AuthData getAuth(String authToken);
 
     void deleteAuth(String authToken);
 
-    void clearAuths(String authToken) throws DataAccessException;
+    void clearAuths(String authToken);
 
-    void createGame(GameData game) throws DataAccessException;
+    void createGame(GameData game);
 
-    GameData getGame(int gameID) throws DataAccessException;
+    GameData getGame(int gameID);
 
     Collection<GameData> listGames();
 
@@ -33,6 +33,6 @@ public interface DataAccessObject {
 
     void updateGame(int gameID, String playerColor, String username);
 
-    void clearGames() throws DataAccessException;
+    void clearGames();
 
 }
