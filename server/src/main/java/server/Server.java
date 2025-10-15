@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccessObject;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -48,6 +49,9 @@ public class Server {
         } catch (BadRequestException ex) {
             var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             ctx.status(400).result(msg);
+        } catch (DataAccessException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(500).result(msg);
         }
     }
 

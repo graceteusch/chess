@@ -1,5 +1,6 @@
 package services;
 
+import dataaccess.DataAccessException;
 import dataaccess.DataAccessObject;
 import model.AuthData;
 import model.UserData;
@@ -19,7 +20,7 @@ public class UserService {
     }
 
     // return AuthData and take UserData instead of using RegisterRequest/Results !!
-    public AuthData register(UserData user) throws AlreadyTakenException, BadRequestException {
+    public AuthData register(UserData user) throws AlreadyTakenException, BadRequestException, DataAccessException {
         String username = user.username();
         String password = user.password();
         String email = user.email();
@@ -33,18 +34,6 @@ public class UserService {
         if (username == null || password == null || email == null) {
             throw new BadRequestException("bad request");
         }
-
-//        // create userDAO object
-//        // call the userDAO object's getUser function
-//        // get back UserData
-//        UserData userData = dataAccess.getUser(username);
-//        if (userData != null) {
-//            // if data is NOT null, then return a failure response
-//            return new RegisterResult(null, null, "[403] Error: already taken");
-//        } else if (username == null) {
-//            // return a failure response
-//            return new RegisterResult(null, null, "[400] Error: bad request");
-//        }
 
         // if data is null
         // call the userDAO createUser function

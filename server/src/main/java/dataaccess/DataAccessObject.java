@@ -8,7 +8,7 @@ import java.util.Collection;
 
 public interface DataAccessObject {
 
-    void createUser(UserData u);
+    void createUser(UserData u) throws DataAccessException;
 
     UserData getUser(String username);
 

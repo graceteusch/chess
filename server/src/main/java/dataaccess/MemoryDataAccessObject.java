@@ -14,7 +14,7 @@ public class MemoryDataAccessObject implements DataAccessObject {
     private final HashMap<String, GameData> games = new HashMap<>();
 
     @Override
-    public void createUser(UserData user) {
+    public void createUser(UserData user) throws DataAccessException {
         users.put(user.username(), user);
     }
 
