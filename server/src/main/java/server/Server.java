@@ -6,6 +6,8 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import model.AuthData;
 import model.UserData;
+import services.AlreadyTakenException;
+import services.BadRequestException;
 import services.UserService;
 
 import java.util.Map;
@@ -40,9 +42,12 @@ public class Server {
 
             // serialize the RegisterResult back into a json
             ctx.result(serializer.toJson(registerResult));
-        } catch (Exception ex) {
+        } catch (AlreadyTakenException ex) {
             var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             ctx.status(403).result(msg);
+        } catch (BadRequestException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(400).result(msg);
         }
     }
 

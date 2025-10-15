@@ -19,13 +19,19 @@ public class UserService {
     }
 
     // return AuthData and take UserData instead of using RegisterRequest/Results !!
-    public AuthData register(UserData user) throws Exception {
+    public AuthData register(UserData user) throws AlreadyTakenException, BadRequestException {
         String username = user.username();
         String password = user.password();
         String email = user.email();
 
+        // 403: already taken
         if (dataAccess.getUser(username) != null) {
-            throw new Exception("already taken");
+            throw new AlreadyTakenException("already taken");
+        }
+
+        // 400: bad request
+        if (username == null || password == null || email == null) {
+            throw new BadRequestException("bad request");
         }
 
 //        // create userDAO object
