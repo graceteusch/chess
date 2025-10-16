@@ -19,7 +19,7 @@ public class MemoryDataAccessObject implements DataAccessObject {
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         return users.get(username);
     }
 

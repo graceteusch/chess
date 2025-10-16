@@ -9,6 +9,7 @@ import model.AuthData;
 import model.UserData;
 import services.AlreadyTakenException;
 import services.BadRequestException;
+import services.UnauthorizedException;
 import services.UserService;
 
 import java.util.Map;
@@ -31,15 +32,26 @@ public class Server {
     }
 
     private void login(Context ctx) {
-        var serializer = new Gson();
-        String requestJson = ctx.body();
-        UserData user = serializer.fromJson(requestJson, UserData.class);
+        try {
+            var serializer = new Gson();
+            String requestJson = ctx.body();
+            UserData user = serializer.fromJson(requestJson, UserData.class);
 
-        AuthData loginResult = userService.login(user);
+            AuthData loginResult = userService.login(user);
 
-        // hardcoding:
-        // AuthData registerResult = new AuthData("authToken", user.username());
-        ctx.result(serializer.toJson(loginResult));
+            // hardcoding:
+            // AuthData registerResult = new AuthData("authToken", user.username());
+            ctx.result(serializer.toJson(loginResult));
+        } catch (BadRequestException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(400).result(msg);
+        } catch (UnauthorizedException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(401).result(msg);
+        } catch (DataAccessException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(500).result(msg);
+        }
     }
 
     private void clear(Context ctx) {

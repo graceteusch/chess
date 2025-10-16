@@ -10,7 +10,7 @@ public interface DataAccessObject {
 
     void createUser(UserData u) throws DataAccessException;
 
-    UserData getUser(String username);
+    UserData getUser(String username) throws DataAccessException;
 
     void clearUsers();
 

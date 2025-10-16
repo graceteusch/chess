@@ -55,16 +55,27 @@ public class UserService {
     }
 
 
-    public AuthData login(UserData user) {
+    public AuthData login(UserData user) throws BadRequestException, UnauthorizedException, DataAccessException {
         String username = user.username();
         String password = user.password();
 
+        // 400: bad request
+        if (username == null || password == null) {
+            throw new BadRequestException("bad request");
+        }
+
         // find user with dataAccess
+        // 401: unauthorized
+        if (dataAccess.getUser(username) == null) {
+            throw new UnauthorizedException("unauthorized");
+        }
+
         UserData currUser = dataAccess.getUser(username);
 
         // check password
+        // 401: unauthorized
         if (!currUser.password().equals(password)) {
-            // throw error
+            throw new UnauthorizedException("unauthorized");
         }
 
         // generate authToken
@@ -74,17 +85,6 @@ public class UserService {
         dataAccess.createAuth(new AuthData(authToken, username));
 
         return new AuthData(authToken, username);
-
-
-//        // 403: already taken
-//        if (dataAccess.getUser(username) != null) {
-//            throw new AlreadyTakenException("already taken");
-//        }
-//
-//        // 400: bad request
-//        if (username == null || password == null || email == null) {
-//            throw new BadRequestException("bad request");
-//        }
 
 
     }
