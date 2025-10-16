@@ -66,4 +66,20 @@ class UserServiceTest {
         var loginUser = new UserData("joe", "wrongPassword", "j@j.com");
         assertThrows(UnauthorizedException.class, () -> userService.login(loginUser));
     }
+
+
+    @Test
+    void logoutValid() throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
+        DataAccessObject db = new MemoryDataAccessObject();
+        var userService = new UserService(db);
+        var user = new UserData("joe", "password", "j@j.com");
+        userService.register(user);
+        var authData = userService.login(user);
+
+        // log out
+        userService.logout(authData.authToken());
+        // check if auth data is now nonexistent (actually got removed)
+        assertNull(db.getAuth(authData.authToken()));
+    }
+
 }
