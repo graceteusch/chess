@@ -56,4 +56,14 @@ class UserServiceTest {
         assertEquals(user.username(), authData.username());
         assertFalse(authData.authToken().isEmpty());
     }
+
+    @Test
+    void loginInvalid() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
+        DataAccessObject db = new MemoryDataAccessObject();
+        var userService = new UserService(db);
+        var registerUser = new UserData("joe", "password", "j@j.com");
+        userService.register(registerUser);
+        var loginUser = new UserData("joe", "wrongPassword", "j@j.com");
+        assertThrows(UnauthorizedException.class, () -> userService.login(loginUser));
+    }
 }
