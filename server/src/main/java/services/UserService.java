@@ -55,11 +55,38 @@ public class UserService {
     }
 
 
-//    public LoginResult login(LoginRequest loginRequest) {
+    public AuthData login(UserData user) {
+        String username = user.username();
+        String password = user.password();
+
+        // find user with dataAccess
+        UserData currUser = dataAccess.getUser(username);
+
+        // check password
+        if (!currUser.password().equals(password)) {
+            // throw error
+        }
+
+        // generate authToken
+        String authToken = generateAuthToken();
+
+        // create AuthData
+        dataAccess.createAuth(new AuthData(authToken, username));
+
+        return new AuthData(authToken, username);
+
+
+//        // 403: already taken
+//        if (dataAccess.getUser(username) != null) {
+//            throw new AlreadyTakenException("already taken");
+//        }
 //
-//    }
-//
-//    public LogoutResult logout(LogoutRequest logoutRequest) {
-//
-//    }
+//        // 400: bad request
+//        if (username == null || password == null || email == null) {
+//            throw new BadRequestException("bad request");
+//        }
+
+
+    }
 }
+

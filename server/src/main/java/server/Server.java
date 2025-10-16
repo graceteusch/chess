@@ -35,8 +35,11 @@ public class Server {
         String requestJson = ctx.body();
         UserData user = serializer.fromJson(requestJson, UserData.class);
 
-        AuthData registerResult = new AuthData("authToken", user.username());
-        ctx.result(serializer.toJson(registerResult));
+        AuthData loginResult = userService.login(user);
+
+        // hardcoding:
+        // AuthData registerResult = new AuthData("authToken", user.username());
+        ctx.result(serializer.toJson(loginResult));
     }
 
     private void clear(Context ctx) {
