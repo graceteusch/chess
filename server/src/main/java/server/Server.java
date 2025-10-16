@@ -23,8 +23,13 @@ public class Server {
         userService = new UserService(new MemoryDataAccessObject());
 
         // Register your endpoints and exception handlers here.
-        server.delete("db", ctx -> ctx.result("{}"));
+        server.delete("db", ctx -> clear(ctx));
         server.post("user", ctx -> register(ctx));
+
+    }
+
+    private void clear(Context ctx) {
+        userService.clear();
     }
 
     private void register(Context ctx) {
@@ -36,10 +41,6 @@ public class Server {
             UserData user = serializer.fromJson(requestJson, UserData.class); // get the actual request (saved as a RegisterRequest object)
             // change to user - just pass in UserData instead of RegisterRequest !
             AuthData registerResult = userService.register(user); // get a RegisterResult back from Service
-
-//            // hard coding:
-//            var response = Map.of("username", user.username(), "authToken", "xyz");
-//            ctx.result(serializer.toJson(response));
 
             // serialize the RegisterResult back into a json
             ctx.result(serializer.toJson(registerResult));

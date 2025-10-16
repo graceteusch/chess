@@ -48,6 +48,13 @@ public class UserService {
         return new AuthData(authToken, username);
     }
 
+    public void clear() {
+        dataAccess.clearUsers();
+        dataAccess.clearAuths();
+        dataAccess.clearGames();
+    }
+
+
 //    public LoginResult login(LoginRequest loginRequest) {
 //
 //    }

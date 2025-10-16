@@ -21,7 +21,7 @@ public interface DataAccessObject {
 
     void deleteAuth(String authToken);
 
-    void clearAuths(String authToken);
+    void clearAuths();
 
     void createGame(GameData game);
 

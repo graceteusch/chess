@@ -44,7 +44,7 @@ public class MemoryDataAccessObject implements DataAccessObject {
     }
 
     @Override
-    public void clearAuths(String authToken) {
+    public void clearAuths() {
         auths.clear();
     }
 
