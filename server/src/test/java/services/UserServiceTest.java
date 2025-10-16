@@ -21,6 +21,19 @@ class UserServiceTest {
         assertTrue(!authData.authToken().isEmpty());
     }
 
+
+    @Test
+    void registerInvalidUsername() throws BadRequestException, AlreadyTakenException, DataAccessException {
+        DataAccessObject db = new MemoryDataAccessObject();
+        var nullUser = new UserData(null, "password", "j@j.com");
+        var userService = new UserService(db);
+        assertThrows(BadRequestException.class, () -> userService.register(nullUser));
+
+        var user = new UserData("joe", "password", "j@j.com");
+        userService.register(user);
+        assertThrows(AlreadyTakenException.class, () -> userService.register(user));
+    }
+
     @Test
     void clear() {
     }
