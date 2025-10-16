@@ -25,7 +25,18 @@ public class Server {
         // Register your endpoints and exception handlers here.
         server.delete("db", ctx -> clear(ctx));
         server.post("user", ctx -> register(ctx));
+        server.post("session", ctx -> login(ctx));
 
+
+    }
+
+    private void login(Context ctx) {
+        var serializer = new Gson();
+        String requestJson = ctx.body();
+        UserData user = serializer.fromJson(requestJson, UserData.class);
+
+        AuthData registerResult = new AuthData("authToken", user.username());
+        ctx.result(serializer.toJson(registerResult));
     }
 
     private void clear(Context ctx) {
