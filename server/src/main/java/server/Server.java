@@ -27,7 +27,11 @@ public class Server {
         server.delete("db", ctx -> clear(ctx));
         server.post("user", ctx -> register(ctx));
         server.post("session", ctx -> login(ctx));
+        server.delete("session", ctx -> logout(ctx));
 
+    }
+
+    private void logout(Context ctx) {
 
     }
 
@@ -41,7 +45,7 @@ public class Server {
 
             // hardcoding:
             // AuthData registerResult = new AuthData("authToken", user.username());
-            ctx.result(serializer.toJson(loginResult));
+            ctx.status(200).result(serializer.toJson(loginResult));
         } catch (BadRequestException ex) {
             var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             ctx.status(400).result(msg);
@@ -56,6 +60,7 @@ public class Server {
 
     private void clear(Context ctx) {
         userService.clear();
+        ctx.status(200).result();
     }
 
     private void register(Context ctx) {
@@ -69,7 +74,7 @@ public class Server {
             AuthData registerResult = userService.register(user); // get a RegisterResult back from Service
 
             // serialize the RegisterResult back into a json
-            ctx.result(serializer.toJson(registerResult));
+            ctx.status(200).result(serializer.toJson(registerResult));
         } catch (AlreadyTakenException ex) {
             var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             ctx.status(403).result(msg);
