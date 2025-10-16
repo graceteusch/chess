@@ -50,16 +50,17 @@ public class MemoryDataAccessObject implements DataAccessObject {
 
     @Override
     public void createGame(GameData game) {
+        games.put(String.valueOf(game.gameID()), game);
     }
 
     @Override
     public GameData getGame(int gameID) {
-        return null;
+        return games.get(String.valueOf(gameID));
     }
 
     @Override
     public Collection<GameData> listGames() {
-        return List.of();
+        return games.values();
     }
 
     @Override

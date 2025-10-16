@@ -6,39 +6,69 @@ import dataaccess.MemoryDataAccessObject;
 import io.javalin.*;
 import io.javalin.http.Context;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
-import services.AlreadyTakenException;
-import services.BadRequestException;
-import services.UnauthorizedException;
-import services.UserService;
+import services.*;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class Server {
 
     private final Javalin server;
     private final UserService userService;
+    private final GameService gameService;
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
         userService = new UserService(new MemoryDataAccessObject());
+        gameService = new GameService(new MemoryDataAccessObject());
 
         // Register your endpoints and exception handlers here.
         server.delete("db", ctx -> clear(ctx));
         server.post("user", ctx -> register(ctx));
         server.post("session", ctx -> login(ctx));
         server.delete("session", ctx -> logout(ctx));
+        server.post("game", ctx -> createGame(ctx));
+
+        //server.get("game", ctx -> listGames(ctx));
 
     }
+
+    private void createGame(Context ctx) {
+
+        //Body	{ "gameName":"" }
+        var serializer = new Gson();
+        String authToken = ctx.header("authorization");
+        String requestJson = ctx.body();
+        GameData game = serializer.fromJson(requestJson, GameData.class);
+
+        int gameID = gameService.createGame(game.gameName());
+
+
+        // serialize the RegisterResult back into a json
+        ctx.status(200).result(serializer.toJson(Map.of("gameID", gameID)));
+
+    }
+
+//    private void listGames(Context ctx) {
+//        try {
+//            var serializer = new Gson();
+//            // get auth token from ctx header
+//            String authToken = ctx.header("authorization");
+//            Collection<GameData> allGames = gameService.listGames(authToken);
+//            ctx.status(200).result(serializer.toJson(allGames));
+//        } catch (UnauthorizedException ex) {
+//            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+//            ctx.status(401).result(msg);
+//        }
+//    }
 
     private void logout(Context ctx) {
         try {
             var serializer = new Gson();
-
-            // get auth token from ctx header ???
+            // get auth token from ctx header
             String authToken = ctx.header("authorization");
-
-            // delete authData?
             userService.logout(authToken);
             ctx.status(200).result(serializer.toJson(Map.of()));
         } catch (UnauthorizedException ex) {
