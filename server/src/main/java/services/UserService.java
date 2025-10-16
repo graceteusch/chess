@@ -85,8 +85,13 @@ public class UserService {
         dataAccess.createAuth(new AuthData(authToken, username));
 
         return new AuthData(authToken, username);
+    }
 
-
+    public void logout(String authToken) throws UnauthorizedException {
+        if (authToken == null || dataAccess.getAuth(authToken) == null) {
+            throw new UnauthorizedException("unauthorized");
+        }
+        dataAccess.deleteAuth(authToken);
     }
 }
 

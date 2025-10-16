@@ -32,7 +32,19 @@ public class Server {
     }
 
     private void logout(Context ctx) {
+        try {
+            var serializer = new Gson();
 
+            // get auth token from ctx header ???
+            String authToken = ctx.header("authorization");
+
+            // delete authData?
+            userService.logout(authToken);
+            ctx.status(200).result(serializer.toJson(Map.of()));
+        } catch (UnauthorizedException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(401).result(msg);
+        }
     }
 
     private void login(Context ctx) {
