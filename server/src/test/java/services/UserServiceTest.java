@@ -99,4 +99,10 @@ class UserServiceTest {
         assertNotNull(db.getAuth(authData.authToken()));
     }
 
+    @Test
+    void createGameValid() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
+
+
+    }
+
 }

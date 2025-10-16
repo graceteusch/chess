@@ -21,8 +21,10 @@ public class Server {
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
-        userService = new UserService(new MemoryDataAccessObject());
-        gameService = new GameService(new MemoryDataAccessObject());
+        var dataAccess = new MemoryDataAccessObject();
+        userService = new UserService(dataAccess);
+        gameService = new GameService(dataAccess);
+
 
         // Register your endpoints and exception handlers here.
         server.delete("db", ctx -> clear(ctx));
@@ -31,24 +33,27 @@ public class Server {
         server.delete("session", ctx -> logout(ctx));
         server.post("game", ctx -> createGame(ctx));
 
-        //server.get("game", ctx -> listGames(ctx));
+//        server.get("game", ctx -> listGames(ctx));
 
     }
 
     private void createGame(Context ctx) {
+        try {
+            var serializer = new Gson();
+            String authToken = ctx.header("authorization");
+            String requestJson = ctx.body();
+            GameData game = serializer.fromJson(requestJson, GameData.class);
 
-        //Body	{ "gameName":"" }
-        var serializer = new Gson();
-        String authToken = ctx.header("authorization");
-        String requestJson = ctx.body();
-        GameData game = serializer.fromJson(requestJson, GameData.class);
+            int gameID = gameService.createGame(authToken, game.gameName());
 
-        int gameID = gameService.createGame(game.gameName());
-
-
-        // serialize the RegisterResult back into a json
-        ctx.status(200).result(serializer.toJson(Map.of("gameID", gameID)));
-
+            ctx.status(200).result(serializer.toJson(Map.of("gameID", gameID)));
+        } catch (BadRequestException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(400).result(msg);
+        } catch (UnauthorizedException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(401).result(msg);
+        }
     }
 
 //    private void listGames(Context ctx) {

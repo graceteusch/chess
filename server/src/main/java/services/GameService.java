@@ -20,7 +20,17 @@ public class GameService {
 
     }
 
-    public int createGame(String name) {
+    public int createGame(String authToken, String name) throws BadRequestException, UnauthorizedException {
+
+        // 400: bad request
+        if (name == null) {
+            throw new BadRequestException("bad request");
+        }
+        // 401: unauthorized
+        if (authToken == null || dataAccess.getAuth(authToken) == null) {
+            throw new UnauthorizedException("unauthorized");
+        }
+
         int newGameID = generateGameID();
         var newGame = new GameData(newGameID, null, null, name, new ChessGame());
         dataAccess.createGame(newGame);
