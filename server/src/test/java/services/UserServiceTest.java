@@ -11,14 +11,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceTest {
 
     @Test
-    void register() throws BadRequestException, AlreadyTakenException, DataAccessException {
+    void registerValid() throws BadRequestException, AlreadyTakenException, DataAccessException {
         DataAccessObject db = new MemoryDataAccessObject();
         var user = new UserData("joe", "password", "j@j.com");
         var userService = new UserService(db);
         var authData = userService.register(user);
         assertNotNull(authData);
         assertEquals(user.username(), authData.username());
-        assertTrue(!authData.authToken().isEmpty());
+        assertFalse(authData.authToken().isEmpty());
     }
 
 
@@ -46,6 +46,14 @@ class UserServiceTest {
     }
 
     @Test
-    void login() {
+    void loginValid() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
+        DataAccessObject db = new MemoryDataAccessObject();
+        var userService = new UserService(db);
+        var user = new UserData("joe", "password", "j@j.com");
+        userService.register(user);
+        var authData = userService.login(user);
+        assertNotNull(authData);
+        assertEquals(user.username(), authData.username());
+        assertFalse(authData.authToken().isEmpty());
     }
 }
