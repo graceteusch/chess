@@ -35,7 +35,14 @@ class UserServiceTest {
     }
 
     @Test
-    void clear() {
+    void clear() throws BadRequestException, AlreadyTakenException, DataAccessException {
+        DataAccessObject db = new MemoryDataAccessObject();
+        var userService = new UserService(db);
+        var user = new UserData("joe", "password", "j@j.com");
+        userService.register(user);
+
+        userService.clear();
+        assertNull(db.getUser("joe"));
     }
 
     @Test
