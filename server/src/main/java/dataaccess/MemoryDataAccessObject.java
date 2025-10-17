@@ -78,8 +78,10 @@ public class MemoryDataAccessObject implements DataAccessObject {
         GameData game = games.get(gameID);
         if (playerColor.equals("WHITE")) {
             GameData updatedGameData = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game());
+            games.put(gameID, updatedGameData);
         } else {
             GameData updatedGameData = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
+            games.put(gameID, updatedGameData);
         }
     }
 
