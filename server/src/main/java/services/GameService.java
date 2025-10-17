@@ -37,7 +37,7 @@ public class GameService {
         return newGameID;
     }
 
-    public void joinGame(String authToken, String playerColor, Integer gameID) throws BadRequestException, UnauthorizedException {
+    public void joinGame(String authToken, String playerColor, Integer gameID) throws BadRequestException, UnauthorizedException, AlreadyTakenException {
         // 400: bad request - playerColor is NOT black/white, gameID is null, or gameID doesn't exist in the db
         if (playerColor == null) {
             throw new BadRequestException("bad request");
@@ -52,6 +52,10 @@ public class GameService {
         // 401: unauthorized
         if (authToken == null || dataAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException("unauthorized");
+        }
+
+        if (dataAccess.isColorTaken(gameID, playerColor)) {
+            throw new AlreadyTakenException("already taken");
         }
         var authData = dataAccess.getAuth(authToken);
         var username = authData.username();
