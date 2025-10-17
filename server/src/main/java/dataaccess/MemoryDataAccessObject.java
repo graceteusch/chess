@@ -11,7 +11,7 @@ import java.util.List;
 public class MemoryDataAccessObject implements DataAccessObject {
     private final HashMap<String, UserData> users = new HashMap<>();
     private final HashMap<String, AuthData> auths = new HashMap<>();
-    private final HashMap<String, GameData> games = new HashMap<>();
+    private final HashMap<Integer, GameData> games = new HashMap<>();
 
     @Override
     public void createUser(UserData user) throws DataAccessException {
@@ -50,12 +50,12 @@ public class MemoryDataAccessObject implements DataAccessObject {
 
     @Override
     public void createGame(GameData game) {
-        games.put(String.valueOf(game.gameID()), game);
+        games.put(game.gameID(), game);
     }
 
     @Override
     public GameData getGame(int gameID) {
-        return games.get(String.valueOf(gameID));
+        return games.get(gameID);
     }
 
     @Override
@@ -64,13 +64,23 @@ public class MemoryDataAccessObject implements DataAccessObject {
     }
 
     @Override
-    public String checkIfColorTaken(int gameID, String playerColor) {
-        return "";
+    public boolean isColorTaken(int gameID, String playerColor) {
+        if (playerColor.equals("WHITE") && games.get(gameID).whiteUsername() != null) {
+            return true;
+        } else if ((playerColor.equals("BLACK") && games.get(gameID).blackUsername() != null)) {
+            return true;
+        }
+        return false;
     }
 
     @Override
     public void updateGame(int gameID, String playerColor, String username) {
-
+        GameData game = games.get(gameID);
+        if (playerColor.equals("WHITE")) {
+            GameData updatedGameData = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game());
+        } else {
+            GameData updatedGameData = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
+        }
     }
 
     @Override

@@ -9,6 +9,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import services.*;
+import services.requests.JoinGameRequest;
 
 import java.util.Collection;
 import java.util.Map;
@@ -32,10 +33,39 @@ public class Server {
         server.post("session", ctx -> login(ctx));
         server.delete("session", ctx -> logout(ctx));
         server.post("game", ctx -> createGame(ctx));
+        server.put("game", ctx -> joinGame(ctx));
 
 //        server.get("game", ctx -> listGames(ctx));
 
     }
+
+    // Verifies that the specified game exists and adds the caller as the requested color to the game.
+    private void joinGame(Context ctx) {
+
+        // Body	{ "playerColor":"WHITE/BLACK", "gameID": 1234 }
+        var serializer = new Gson();
+        String authToken = ctx.header("authorization");
+        String requestJson = ctx.body();
+        JoinGameRequest game = serializer.fromJson(requestJson, JoinGameRequest.class);
+
+
+        gameService.joinGame(authToken, game.playerColor(), game.gameID());
+
+        ctx.status(200).result(serializer.toJson(Map.of()));
+    }
+    //    private void listGames(Context ctx) {
+//        try {
+//            var serializer = new Gson();
+//            // get auth token from ctx header
+//            String authToken = ctx.header("authorization");
+//            Collection<GameData> allGames = gameService.listGames(authToken);
+//            ctx.status(200).result(serializer.toJson(allGames));
+//        } catch (UnauthorizedException ex) {
+//            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+//            ctx.status(401).result(msg);
+//        }
+//    }
+
 
     private void createGame(Context ctx) {
         try {
@@ -55,19 +85,6 @@ public class Server {
             ctx.status(401).result(msg);
         }
     }
-
-//    private void listGames(Context ctx) {
-//        try {
-//            var serializer = new Gson();
-//            // get auth token from ctx header
-//            String authToken = ctx.header("authorization");
-//            Collection<GameData> allGames = gameService.listGames(authToken);
-//            ctx.status(200).result(serializer.toJson(allGames));
-//        } catch (UnauthorizedException ex) {
-//            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
-//            ctx.status(401).result(msg);
-//        }
-//    }
 
     private void logout(Context ctx) {
         try {

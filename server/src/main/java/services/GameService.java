@@ -37,6 +37,12 @@ public class GameService {
         return newGameID;
     }
 
+    public void joinGame(String authToken, String playerColor, int gameID) {
+        var authData = dataAccess.getAuth(authToken);
+        var username = authData.username();
+        dataAccess.updateGame(gameID, playerColor, username);
+    }
+
 //    public Collection<GameData> listGames(String authToken) throws UnauthorizedException {
 //        if (authToken == null || dataAccess.getAuth(authToken) == null) {
 //            throw new UnauthorizedException("unauthorized");

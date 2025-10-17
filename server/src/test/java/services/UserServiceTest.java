@@ -4,15 +4,27 @@ import dataaccess.DataAccessException;
 import dataaccess.DataAccessObject;
 import dataaccess.MemoryDataAccessObject;
 import model.UserData;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import passoff.model.TestCreateRequest;
+import passoff.model.TestUser;
+import passoff.server.TestServerFacade;
+import server.Server;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
 
+    private static DataAccessObject db;
+
+    @BeforeAll
+    public static void init() {
+        db = new MemoryDataAccessObject();
+    }
+
     @Test
     void registerValid() throws BadRequestException, AlreadyTakenException, DataAccessException {
-        DataAccessObject db = new MemoryDataAccessObject();
+        db = new MemoryDataAccessObject();
         var user = new UserData("joe", "password", "j@j.com");
         var userService = new UserService(db);
         var authData = userService.register(user);
@@ -24,7 +36,7 @@ class UserServiceTest {
 
     @Test
     void registerInvalidUsername() throws BadRequestException, AlreadyTakenException, DataAccessException {
-        DataAccessObject db = new MemoryDataAccessObject();
+        db = new MemoryDataAccessObject();
         var nullUser = new UserData(null, "password", "j@j.com");
         var userService = new UserService(db);
         assertThrows(BadRequestException.class, () -> userService.register(nullUser));
@@ -36,7 +48,7 @@ class UserServiceTest {
 
     @Test
     void clear() throws BadRequestException, AlreadyTakenException, DataAccessException {
-        DataAccessObject db = new MemoryDataAccessObject();
+        db = new MemoryDataAccessObject();
         var userService = new UserService(db);
         var user = new UserData("joe", "password", "j@j.com");
         userService.register(user);
@@ -47,7 +59,7 @@ class UserServiceTest {
 
     @Test
     void loginValid() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
-        DataAccessObject db = new MemoryDataAccessObject();
+        db = new MemoryDataAccessObject();
         var userService = new UserService(db);
         var user = new UserData("joe", "password", "j@j.com");
         userService.register(user);
@@ -59,7 +71,7 @@ class UserServiceTest {
 
     @Test
     void loginInvalid() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
-        DataAccessObject db = new MemoryDataAccessObject();
+        db = new MemoryDataAccessObject();
         var userService = new UserService(db);
         var registerUser = new UserData("joe", "password", "j@j.com");
         userService.register(registerUser);
@@ -70,7 +82,7 @@ class UserServiceTest {
 
     @Test
     void logoutValid() throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
-        DataAccessObject db = new MemoryDataAccessObject();
+        db = new MemoryDataAccessObject();
         var userService = new UserService(db);
         var user = new UserData("joe", "password", "j@j.com");
         userService.register(user);
@@ -84,7 +96,7 @@ class UserServiceTest {
 
     @Test
     void logoutInvalid() throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
-        DataAccessObject db = new MemoryDataAccessObject();
+        db = new MemoryDataAccessObject();
         var userService = new UserService(db);
         var user = new UserData("joe", "password", "j@j.com");
         userService.register(user);
@@ -104,5 +116,18 @@ class UserServiceTest {
 
 
     }
+
+    @Test
+    void createGameInvalid() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
+
+
+    }
+
+    @Test
+    void joinGameValid() {
+        db = new MemoryDataAccessObject();
+
+    }
+
 
 }
