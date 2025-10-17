@@ -3,6 +3,7 @@ package services;
 import dataaccess.DataAccessException;
 import dataaccess.DataAccessObject;
 import dataaccess.MemoryDataAccessObject;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,65 +17,62 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceTest {
 
     private static DataAccessObject db;
+    private static UserData basicTestUser;
+    private static UserService userService;
+    private static GameService gameService;
 
     @BeforeAll
     public static void init() {
         db = new MemoryDataAccessObject();
+        basicTestUser = new UserData("joe", "password", "j@j.com");
+        userService = new UserService(db);
+        gameService = new GameService(db);
     }
 
     @Test
     void registerValid() throws BadRequestException, AlreadyTakenException, DataAccessException {
-        db = new MemoryDataAccessObject();
-        var user = new UserData("joe", "password", "j@j.com");
-        var userService = new UserService(db);
-        var authData = userService.register(user);
+        var authData = userService.register(basicTestUser);
+
         assertNotNull(authData);
-        assertEquals(user.username(), authData.username());
+        assertEquals(basicTestUser.username(), authData.username());
         assertFalse(authData.authToken().isEmpty());
     }
 
 
     @Test
     void registerInvalidUsername() throws BadRequestException, AlreadyTakenException, DataAccessException {
-        db = new MemoryDataAccessObject();
+        // bad request
         var nullUser = new UserData(null, "password", "j@j.com");
-        var userService = new UserService(db);
         assertThrows(BadRequestException.class, () -> userService.register(nullUser));
 
-        var user = new UserData("joe", "password", "j@j.com");
-        userService.register(user);
-        assertThrows(AlreadyTakenException.class, () -> userService.register(user));
+        // already taken (register same person twice)
+        userService.register(basicTestUser);
+        assertThrows(AlreadyTakenException.class, () -> userService.register(basicTestUser));
     }
 
     @Test
     void clear() throws BadRequestException, AlreadyTakenException, DataAccessException {
-        db = new MemoryDataAccessObject();
-        var userService = new UserService(db);
-        var user = new UserData("joe", "password", "j@j.com");
-        userService.register(user);
+        userService.register(basicTestUser);
 
         userService.clear();
+        // user shouldn't exist
         assertNull(db.getUser("joe"));
     }
 
     @Test
     void loginValid() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
-        db = new MemoryDataAccessObject();
-        var userService = new UserService(db);
-        var user = new UserData("joe", "password", "j@j.com");
-        userService.register(user);
-        var authData = userService.login(user);
+        userService.register(basicTestUser);
+        var authData = userService.login(basicTestUser);
         assertNotNull(authData);
-        assertEquals(user.username(), authData.username());
+        assertEquals(basicTestUser.username(), authData.username());
         assertFalse(authData.authToken().isEmpty());
     }
 
     @Test
     void loginInvalid() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
-        db = new MemoryDataAccessObject();
-        var userService = new UserService(db);
-        var registerUser = new UserData("joe", "password", "j@j.com");
-        userService.register(registerUser);
+        // register a user
+        userService.register(basicTestUser);
+        // login user with wrong password
         var loginUser = new UserData("joe", "wrongPassword", "j@j.com");
         assertThrows(UnauthorizedException.class, () -> userService.login(loginUser));
     }
@@ -82,11 +80,9 @@ class UserServiceTest {
 
     @Test
     void logoutValid() throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
-        db = new MemoryDataAccessObject();
-        var userService = new UserService(db);
-        var user = new UserData("joe", "password", "j@j.com");
-        userService.register(user);
-        var authData = userService.login(user);
+        // register and login user
+        userService.register(basicTestUser);
+        var authData = userService.login(basicTestUser);
 
         // log out
         userService.logout(authData.authToken());
@@ -96,37 +92,68 @@ class UserServiceTest {
 
     @Test
     void logoutInvalid() throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
-        db = new MemoryDataAccessObject();
-        var userService = new UserService(db);
-        var user = new UserData("joe", "password", "j@j.com");
-        userService.register(user);
-        var authData = userService.login(user);
+        // register and login a user
+        userService.register(basicTestUser);
+        var authData = userService.login(basicTestUser);
 
         // invalid log out
         String fakeAuthToken = "fake";
 
         assertThrows(UnauthorizedException.class, () -> userService.logout(fakeAuthToken));
 
-        // check if auth data is still existent (actually got removed)
+        // check if auth data is still existent (shouldn't have been removed)
         assertNotNull(db.getAuth(authData.authToken()));
     }
 
     @Test
     void createGameValid() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
+        // register and login
+        userService.register(basicTestUser);
+        var authData = userService.login(basicTestUser);
 
+        // create a game
+        int testGameID = gameService.createGame(authData.authToken(), "Test Game");
 
+        // get game from the db
+        GameData game = db.getGame(testGameID);
+
+        assertNotNull(game);
+        assertEquals("Test Game", game.gameName());
+        assertEquals(testGameID, game.gameID());
+        assertNull(game.whiteUsername());
+        assertNull(game.blackUsername());
     }
 
     @Test
     void createGameInvalid() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
+        // register and login
+        userService.register(basicTestUser);
+        var authData = userService.login(basicTestUser);
 
+        // bad request - null game name
+        assertThrows(BadRequestException.class, () -> gameService.createGame(authData.authToken(), null));
 
+        // unauthorized - authToken isn't valid
+        assertThrows(UnauthorizedException.class, () -> gameService.createGame("fakeAuthToken", "Test Game"));
     }
 
     @Test
-    void joinGameValid() {
-        db = new MemoryDataAccessObject();
+    void joinGameValid() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
+        // register and login
+        userService.register(basicTestUser);
+        var authData = userService.login(basicTestUser);
 
+        // create a game
+        int testGameID = gameService.createGame(authData.authToken(), "Test Game");
+
+        // join a game - white username
+        gameService.joinGame(authData.authToken(), "WHITE", testGameID);
+        GameData gameJoined = db.getGame(testGameID);
+
+        assertNotNull(gameJoined);
+        assertEquals(basicTestUser.username(), gameJoined.whiteUsername());
+        assertNull(gameJoined.blackUsername());
+        assertEquals("Test Game", gameJoined.gameName());
     }
 
 
