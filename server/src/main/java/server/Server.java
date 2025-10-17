@@ -41,18 +41,26 @@ public class Server {
 
     // Verifies that the specified game exists and adds the caller as the requested color to the game.
     private void joinGame(Context ctx) {
+        try {
+            // Body	{ "playerColor":"WHITE/BLACK", "gameID": 1234 }
+            var serializer = new Gson();
+            String authToken = ctx.header("authorization");
+            String requestJson = ctx.body();
+            JoinGameRequest game = serializer.fromJson(requestJson, JoinGameRequest.class);
 
-        // Body	{ "playerColor":"WHITE/BLACK", "gameID": 1234 }
-        var serializer = new Gson();
-        String authToken = ctx.header("authorization");
-        String requestJson = ctx.body();
-        JoinGameRequest game = serializer.fromJson(requestJson, JoinGameRequest.class);
 
+            gameService.joinGame(authToken, game.playerColor(), game.gameID());
 
-        gameService.joinGame(authToken, game.playerColor(), game.gameID());
-
-        ctx.status(200).result(serializer.toJson(Map.of()));
+            ctx.status(200).result(serializer.toJson(Map.of()));
+        } catch (BadRequestException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(400).result(msg);
+        } catch (UnauthorizedException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(401).result(msg);
+        }
     }
+
     //    private void listGames(Context ctx) {
 //        try {
 //            var serializer = new Gson();

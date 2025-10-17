@@ -156,5 +156,21 @@ class UserServiceTest {
         assertEquals("Test Game", gameJoined.gameName());
     }
 
+    @Test
+    void joinGameInvalid() throws UnauthorizedException, BadRequestException, DataAccessException, AlreadyTakenException {
+        // register and login
+        userService.register(basicTestUser);
+        var authData = userService.login(basicTestUser);
+
+        // create a game
+        int testGameID = gameService.createGame(authData.authToken(), "Test Game");
+
+        // bad request - player color is wrong
+        assertThrows(BadRequestException.class, () -> gameService.joinGame(authData.authToken(), "BLUE", testGameID));
+        // bad request - testGameID is nonexistent
+        assertThrows(BadRequestException.class, () -> gameService.joinGame(authData.authToken(), "WHITE", 500));
+        // unauthorized - incorrect authToken
+        assertThrows(UnauthorizedException.class, () -> gameService.joinGame("fakeAuthToken", "WHITE", testGameID));
+    }
 
 }
