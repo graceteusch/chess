@@ -62,11 +62,11 @@ public class GameService {
         dataAccess.updateGame(gameID, playerColor, username);
     }
 
-//    public Collection<GameData> listGames(String authToken) throws UnauthorizedException {
-//        if (authToken == null || dataAccess.getAuth(authToken) == null) {
-//            throw new UnauthorizedException("unauthorized");
-//        }
-//        Collection<GameData> allGames = dataAccess.listGames();
-//        return allGames;
-//    }
+    public Collection<GameData> listGames(String authToken) throws UnauthorizedException {
+        if (authToken == null || dataAccess.getAuth(authToken) == null) {
+            throw new UnauthorizedException("unauthorized");
+        }
+        Collection<GameData> allGames = dataAccess.listGames();
+        return allGames;
+    }
 }

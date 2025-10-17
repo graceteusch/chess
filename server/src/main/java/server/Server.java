@@ -34,9 +34,23 @@ public class Server {
         server.delete("session", ctx -> logout(ctx));
         server.post("game", ctx -> createGame(ctx));
         server.put("game", ctx -> joinGame(ctx));
+        server.get("game", ctx -> listGames(ctx));
 
-//        server.get("game", ctx -> listGames(ctx));
+    }
 
+    private void listGames(Context ctx) {
+        try {
+            var serializer = new Gson();
+            // get auth token from ctx header
+            String authToken = ctx.header("authorization");
+            Collection<GameData> allGames = gameService.listGames(authToken);
+            var listGamesResponse = Map.of("games", allGames);
+
+            ctx.status(200).result(serializer.toJson(listGamesResponse));
+        } catch (UnauthorizedException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(401).result(msg);
+        }
     }
 
     // Verifies that the specified game exists and adds the caller as the requested color to the game.
@@ -63,20 +77,6 @@ public class Server {
             ctx.status(403).result(msg);
         }
     }
-
-    //    private void listGames(Context ctx) {
-//        try {
-//            var serializer = new Gson();
-//            // get auth token from ctx header
-//            String authToken = ctx.header("authorization");
-//            Collection<GameData> allGames = gameService.listGames(authToken);
-//            ctx.status(200).result(serializer.toJson(allGames));
-//        } catch (UnauthorizedException ex) {
-//            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
-//            ctx.status(401).result(msg);
-//        }
-//    }
-
 
     private void createGame(Context ctx) {
         try {
