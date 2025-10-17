@@ -39,6 +39,9 @@ public class GameService {
 
     public void joinGame(String authToken, String playerColor, Integer gameID) throws BadRequestException, UnauthorizedException {
         // 400: bad request - playerColor is NOT black/white, gameID is null, or gameID doesn't exist in the db
+        if (playerColor == null) {
+            throw new BadRequestException("bad request");
+        }
         if (!playerColor.equals("BLACK") && !playerColor.equals("WHITE")) {
             throw new BadRequestException("bad request");
         }
