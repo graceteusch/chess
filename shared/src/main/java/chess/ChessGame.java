@@ -207,7 +207,7 @@ public class ChessGame {
                 for (int col = 1; col <= 8; col++) {
                     ChessPosition startPos = new ChessPosition(row, col);
                     ChessPiece piece = board.getPiece(startPos);
-                    if (pieceOnSameTeam(teamColor, piece)) {
+                    if (!pieceOnSameTeam(teamColor, piece)) {
                         continue;
                     }
 
