@@ -152,6 +152,40 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition currTeamsKing = findKing(teamColor);
+
+        // check every piece on the board (nested loop)
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+                // if the piece exists (not null), and it's the OPPOSITE COLOR of the teamColor
+                if (piece == null) {
+                    continue;
+                }
+                if (piece.getTeamColor() == teamColor) {
+                    continue;
+                }
+                // then check if any of its “piece moves” end at the King’s position - if so then the team IS in check
+                Collection<ChessMove> pieceMoves = piece.pieceMoves(board, new ChessPosition(row, col));
+                if (pieceCanCauseCheck(piece, pieceMoves, currTeamsKing)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean pieceCanCauseCheck(ChessPiece piece, Collection<ChessMove> pieceMoves, ChessPosition currTeamsKing) {
+        for (ChessMove move : pieceMoves) {
+            ChessPosition endPos = move.getEndPosition();
+            if (move.getEndPosition().equals(currTeamsKing)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private ChessPosition findKing(TeamColor teamColor) {
         // find king
         ChessPosition currTeamsKing = null;
         for (int row = 1; row <= 8; row++) {
@@ -163,26 +197,9 @@ public class ChessGame {
                 }
             }
         }
-
-        // check every piece on the board (nested loop)
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                // if the piece exists (not null), and it's the OPPOSITE COLOR of the teamColor
-                if (piece != null && piece.getTeamColor() != teamColor) {
-                    // then check if any of its “piece moves” end at the King’s position - if so then the team IS in check
-                    Collection<ChessMove> pieceMoves = piece.pieceMoves(board, new ChessPosition(row, col));
-                    for (ChessMove move : pieceMoves) {
-                        ChessPosition endPos = move.getEndPosition();
-                        if (move.getEndPosition().equals(currTeamsKing)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+        return currTeamsKing;
     }
+
 
     /**
      * Determines if the given team is in checkmate
