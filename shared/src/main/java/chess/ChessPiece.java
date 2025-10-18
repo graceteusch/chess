@@ -104,7 +104,9 @@ public class ChessPiece {
         return moves;
     }
 
-    private Collection<ChessMove> calculateMoves(int rowShift, int colShift, ChessPosition start, ChessPosition currPosition, ChessBoard board, Collection<ChessMove> moves, boolean recurse) {
+    private Collection<ChessMove> calculateMoves(int rowShift, int colShift, ChessPosition start,
+                                                 ChessPosition currPosition, ChessBoard board,
+                                                 Collection<ChessMove> moves, boolean recurse) {
         int currRow = currPosition.getRow();
         int currCol = currPosition.getColumn();
         int newRow = currRow + rowShift;
@@ -185,7 +187,8 @@ public class ChessPiece {
         return moves;
     }
 
-    private Collection<ChessMove> calculateDiagonalPawnMoves(ChessBoard board, ChessPosition pawnPosition, Collection<ChessMove> moves, int orientation) {
+    private Collection<ChessMove> calculateDiagonalPawnMoves(ChessBoard board, ChessPosition pawnPosition,
+                                                             Collection<ChessMove> moves, int orientation) {
         int currRow = pawnPosition.getRow();
         int currCol = pawnPosition.getColumn();
         int newRow = currRow + orientation;

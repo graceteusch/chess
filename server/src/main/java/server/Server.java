@@ -9,7 +9,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import service.*;
-import service.requests.JoinGameRequest;
+import service.JoinGameRequest;
 
 import java.util.Collection;
 import java.util.Map;

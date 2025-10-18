@@ -43,7 +43,8 @@ public class GameService {
         return newGameID;
     }
 
-    public void joinGame(String authToken, String playerColor, Integer gameID) throws BadRequestException, UnauthorizedException, AlreadyTakenException {
+    public void joinGame(String authToken, String playerColor, Integer gameID)
+            throws BadRequestException, UnauthorizedException, AlreadyTakenException {
         // 400: bad request - playerColor is NOT black/white, gameID is null, or gameID doesn't exist in the db
         if (playerColor == null) {
             throw new BadRequestException("bad request");
