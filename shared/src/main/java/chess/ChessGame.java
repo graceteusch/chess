@@ -153,14 +153,23 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         // find king
-        ChessPosition currTeamsKing = findKing(teamColor);
+        ChessPosition currTeamsKing = null;
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    currTeamsKing = new ChessPosition(row, col);
+                    break;
+                }
+            }
+        }
 
         // check every piece on the board (nested loop)
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
                 // if the piece exists (not null), and it's the OPPOSITE COLOR of the teamColor
-                if (!pieceOnSameTeam(teamColor, piece)) {
+                if (piece != null && piece.getTeamColor() != teamColor) {
                     // then check if any of its “piece moves” end at the King’s position - if so then the team IS in check
                     Collection<ChessMove> pieceMoves = piece.pieceMoves(board, new ChessPosition(row, col));
                     for (ChessMove move : pieceMoves) {
@@ -173,20 +182,6 @@ public class ChessGame {
             }
         }
         return false;
-    }
-
-    private ChessPosition findKing(TeamColor teamColor) {
-        ChessPosition currTeamsKing = null;
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
-                    currTeamsKing = new ChessPosition(row, col);
-                    break;
-                }
-            }
-        }
-        return currTeamsKing;
     }
 
     /**
@@ -207,21 +202,19 @@ public class ChessGame {
                 for (int col = 1; col <= 8; col++) {
                     ChessPosition startPos = new ChessPosition(row, col);
                     ChessPiece piece = board.getPiece(startPos);
-                    if (!pieceOnSameTeam(teamColor, piece)) {
-                        continue;
-                    }
-
-                    Collection<ChessMove> validMoves = validMoves(startPos);
-                    for (var move : validMoves) {
-                        // move piece and check if it puts the board into check
-                        board.removePiece(startPos, piece);
-                        board.addPiece(move.getEndPosition(), piece);
-                        if (!isInCheck(teamColor)) {
-                            return false;
+                    if (piece != null && piece.getTeamColor() == teamColor) {
+                        Collection<ChessMove> validMoves = validMoves(startPos);
+                        for (var move : validMoves) {
+                            // move piece and check if it puts the board into check
+                            board.removePiece(startPos, piece);
+                            board.addPiece(move.getEndPosition(), piece);
+                            if (!isInCheck(teamColor)) {
+                                return false;
+                            }
+                            // put piece back to original spot
+                            board.removePiece(move.getEndPosition(), piece);
+                            board.addPiece(startPos, piece);
                         }
-                        // put piece back to original spot
-                        board.removePiece(move.getEndPosition(), piece);
-                        board.addPiece(startPos, piece);
                     }
                 }
             }
@@ -229,9 +222,6 @@ public class ChessGame {
         return true;
     }
 
-    private boolean pieceOnSameTeam(TeamColor teamColor, ChessPiece piece) {
-        return piece != null && piece.getTeamColor() == teamColor;
-    }
 
     /**
      * Determines if the given team is in stalemate, which here is defined as having
