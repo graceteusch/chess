@@ -219,29 +219,35 @@ public class ChessGame {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition startPos = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(startPos);
+                if (piece == null) {
+                    continue;
+                }
+                if (piece.getTeamColor() != teamColor) {
+                    continue;
+                }
 
-
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> validMoves = validMoves(startPos);
-                    for (var move : validMoves) {
-                        // move piece and check if it puts the board into check
-                        board.removePiece(startPos, piece);
-                        board.addPiece(move.getEndPosition(), piece);
-                        if (!isInCheck(teamColor)) {
-                            return false;
-                        }
-                        // put piece back to original spot
-                        board.removePiece(move.getEndPosition(), piece);
-                        board.addPiece(startPos, piece);
-                    }
+                if (!movingPieceCausesCheck(piece, startPos, teamColor)) {
+                    return false;
                 }
             }
         }
         return true;
     }
 
-    private boolean isSameTeam(ChessPiece piece, TeamColor teamColor) {
-        return piece.getTeamColor() == teamColor;
+    private boolean movingPieceCausesCheck(ChessPiece piece, ChessPosition startPos, TeamColor teamColor) {
+        Collection<ChessMove> validMoves = validMoves(startPos);
+        for (var move : validMoves) {
+            // move piece and check if it puts the board into check
+            board.removePiece(startPos, piece);
+            board.addPiece(move.getEndPosition(), piece);
+            if (!isInCheck(teamColor)) {
+                return false;
+            }
+            // put piece back to original spot
+            board.removePiece(move.getEndPosition(), piece);
+            board.addPiece(startPos, piece);
+        }
+        return true;
     }
 
 
