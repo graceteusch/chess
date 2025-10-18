@@ -193,33 +193,38 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) {
             return false;
-        } else {
-            // loop through all pieces of the same team color
-            // loop through their valid moves
-            // check for isInCheck each time
-            // if isInCheck is never false then return true
-            for (int row = 1; row <= 8; row++) {
-                for (int col = 1; col <= 8; col++) {
-                    ChessPosition startPos = new ChessPosition(row, col);
-                    ChessPiece piece = board.getPiece(startPos);
-                    if (piece != null && piece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> validMoves = validMoves(startPos);
-                        for (var move : validMoves) {
-                            // move piece and check if it puts the board into check
-                            board.removePiece(startPos, piece);
-                            board.addPiece(move.getEndPosition(), piece);
-                            if (!isInCheck(teamColor)) {
-                                return false;
-                            }
-                            // put piece back to original spot
-                            board.removePiece(move.getEndPosition(), piece);
-                            board.addPiece(startPos, piece);
+        }
+        // loop through all pieces of the same team color
+        // loop through their valid moves
+        // check for isInCheck each time
+        // if isInCheck is never false then return true
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition startPos = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(startPos);
+
+
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> validMoves = validMoves(startPos);
+                    for (var move : validMoves) {
+                        // move piece and check if it puts the board into check
+                        board.removePiece(startPos, piece);
+                        board.addPiece(move.getEndPosition(), piece);
+                        if (!isInCheck(teamColor)) {
+                            return false;
                         }
+                        // put piece back to original spot
+                        board.removePiece(move.getEndPosition(), piece);
+                        board.addPiece(startPos, piece);
                     }
                 }
             }
         }
         return true;
+    }
+
+    private boolean isSameTeam(ChessPiece piece, TeamColor teamColor) {
+        return piece.getTeamColor() == teamColor;
     }
 
 
