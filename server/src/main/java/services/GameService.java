@@ -5,13 +5,19 @@ import dataaccess.DataAccessObject;
 import model.GameData;
 
 import java.util.Collection;
-import java.util.UUID;
+import java.util.Random;
 
 public class GameService {
     private final DataAccessObject dataAccess;
+    int newGameID = 1;
 
     private int generateGameID() {
-        return 1;
+        Random random = new Random();
+        int randomID = random.nextInt();
+        while (dataAccess.getGame(randomID) != null) {
+            randomID = random.nextInt();
+        }
+        return randomID;
     }
 
 
