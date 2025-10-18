@@ -186,7 +186,7 @@ class UserServiceTest {
         int testGameID = gameService.createGame(authData.authToken(), "Test Game");
 
         // create 2nd game
-        int testGameID_2 = gameService.createGame(authData.authToken(), "Test Game");
+        int testGameId2 = gameService.createGame(authData.authToken(), "Test Game");
 
         // list games
         Collection<GameData> gameList = gameService.listGames(authData.authToken());
@@ -208,7 +208,7 @@ class UserServiceTest {
         GameData gameJoined = db.getGame(testGameID);
 
         // create game 2
-        int testGameID_2 = gameService.createGame(authData.authToken(), "Test Game");
+        int testGameId2 = gameService.createGame(authData.authToken(), "Test Game");
 
         // list games with incorrect authToken - unauthorized exception
         assertThrows(UnauthorizedException.class, () -> gameService.listGames("fakeAuthToken"));

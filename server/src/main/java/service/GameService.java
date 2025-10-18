@@ -21,8 +21,8 @@ public class GameService {
     }
 
 
-    public GameService(DataAccessObject DAO) {
-        this.dataAccess = DAO;
+    public GameService(DataAccessObject dataAccess) {
+        this.dataAccess = dataAccess;
 
     }
 

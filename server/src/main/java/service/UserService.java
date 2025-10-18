@@ -10,8 +10,8 @@ import java.util.UUID;
 public class UserService {
     private final DataAccessObject dataAccess;
 
-    public UserService(DataAccessObject DAO) {
-        this.dataAccess = DAO;
+    public UserService(DataAccessObject dataAccess) {
+        this.dataAccess = dataAccess;
     }
 
     // generate a token when a user registers or logs in
