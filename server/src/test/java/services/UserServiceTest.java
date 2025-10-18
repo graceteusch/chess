@@ -184,18 +184,33 @@ class UserServiceTest {
         // create a game
         int testGameID = gameService.createGame(authData.authToken(), "Test Game");
 
+        // create 2nd game
+        int testGameID_2 = gameService.createGame(authData.authToken(), "Test Game");
+
+        // list games
+        Collection<GameData> gameList = gameService.listGames(authData.authToken());
+        assertNotNull(gameList);
+        assertEquals(2, gameList.size());
+    }
+
+    @Test
+    void listGamesInvalid() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
+        // register and login
+        userService.register(basicTestUser);
+        var authData = userService.login(basicTestUser);
+
+        // create a game
+        int testGameID = gameService.createGame(authData.authToken(), "Test Game");
+
         // join a game - white username
         gameService.joinGame(authData.authToken(), "WHITE", testGameID);
         GameData gameJoined = db.getGame(testGameID);
 
         // create game 2
         int testGameID_2 = gameService.createGame(authData.authToken(), "Test Game");
-        // same gameid because I don't actually generate a random num !!
 
-        // list one game
-        Collection<GameData> gameList = gameService.listGames(authData.authToken());
-        assertNotNull(gameList);
-        assertEquals(2, gameList.size());
+        // list games with incorrect authToken - unauthorized exception
+        assertThrows(UnauthorizedException.class, () -> gameService.listGames("fakeAuthToken"));
     }
 
 }
