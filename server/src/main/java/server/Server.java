@@ -8,8 +8,8 @@ import io.javalin.http.Context;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import services.*;
-import services.requests.JoinGameRequest;
+import service.*;
+import service.requests.JoinGameRequest;
 
 import java.util.Collection;
 import java.util.Map;

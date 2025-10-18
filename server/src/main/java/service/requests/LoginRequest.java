@@ -1,4 +1,4 @@
-package services.requests;
+package service.requests;
 
 public record LoginRequest() {
 }

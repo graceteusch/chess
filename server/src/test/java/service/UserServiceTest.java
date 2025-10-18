@@ -1,4 +1,4 @@
-package services;
+package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.DataAccessObject;
@@ -6,6 +6,7 @@ import dataaccess.MemoryDataAccessObject;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import passoff.model.TestCreateRequest;
 import passoff.model.TestUser;
@@ -23,8 +24,8 @@ class UserServiceTest {
     private static UserService userService;
     private static GameService gameService;
 
-    @BeforeAll
-    public static void init() {
+    @BeforeEach
+    public void init() {
         db = new MemoryDataAccessObject();
         basicTestUser = new UserData("joe", "password", "j@j.com");
         userService = new UserService(db);
