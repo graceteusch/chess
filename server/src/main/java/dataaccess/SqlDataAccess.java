@@ -133,7 +133,8 @@ public class SqlDataAccess implements DataAccessObject {
     private UserData readUserData(ResultSet rs) throws SQLException {
         var username = rs.getString("username");
         var email = rs.getString("email");
-        return new UserData(username, null, email);
+        var password = rs.getString("password");
+        return new UserData(username, password, email);
     }
 
     @Override

@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.UserData;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,6 +18,7 @@ class DataAccessObjectTest {
 
         assertEquals(user.username(), gotUser.username());
         assertEquals(user.email(), gotUser.email());
+        assertTrue(BCrypt.checkpw(user.password(), gotUser.password()));
     }
 
 
