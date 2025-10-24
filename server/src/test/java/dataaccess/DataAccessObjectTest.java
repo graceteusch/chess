@@ -9,16 +9,22 @@ class DataAccessObjectTest {
 
     @Test
     void createUser() throws DataAccessException {
-        DataAccessObject db = new MemoryDataAccessObject();
+        DataAccessObject db = new SqlDataAccess();
         var user = new UserData("joe", "password", "j@j.com");
         db.createUser(user);
-        assertEquals(user, db.getUser(user.username()));
+
+        var gotUser = db.getUser(user.username());
+
+        assertEquals(user.username(), gotUser.username());
+        assertEquals(user.email(), gotUser.email());
     }
+
 
     @Test
     void getUser() {
 
     }
+
 
     @Test
     void clearUsers() throws DataAccessException {

@@ -6,9 +6,14 @@ import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
 
 public class SqlDataAccess implements DataAccessObject {
 
@@ -31,7 +36,7 @@ public class SqlDataAccess implements DataAccessObject {
 
             // auth data table
             """
-            CREATE TABLE IF NOT EXISTS  userdata (
+            CREATE TABLE IF NOT EXISTS  authdata (
               `authToken` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
               PRIMARY KEY (`authToken`)
@@ -40,7 +45,7 @@ public class SqlDataAccess implements DataAccessObject {
 
             // game data table
             """
-            CREATE TABLE IF NOT EXISTS  userdata (
+            CREATE TABLE IF NOT EXISTS  gamedata (
               `gameID` int NOT NULL,
               `whiteUsername` varchar(256),
               `blackUsername` varchar(256),
@@ -65,11 +70,11 @@ public class SqlDataAccess implements DataAccessObject {
         }
     }
 
-    private void storeUserPassword(String username, String clearTextPassword) {
+    private String hashUserPassword(String username, String clearTextPassword) {
         String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
-
+        return hashedPassword;
         // write the hashed password in database along with the user's other information
-        writeHashedPasswordToDatabase(username, hashedPassword);
+        //writeHashedPasswordToDatabase(username, hashedPassword);
     }
 
     private void writeHashedPasswordToDatabase(String username, String hashedPassword) {
@@ -90,11 +95,45 @@ public class SqlDataAccess implements DataAccessObject {
     @Override
     public void createUser(UserData u) throws DataAccessException {
         // store username password and email in the userdata table
+        var statement = "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
+        var password = hashUserPassword(u.username(), u.password());
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, u.username());
+                preparedStatement.setString(2, password);
+                preparedStatement.setString(3, u.email());
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to update database", ex);
+        }
     }
+
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
+        if (username.matches("[a-zA-Z]+")) {
+            var statement = "SELECT username, password, email FROM userdata WHERE username = ?";
+            try (Connection conn = DatabaseManager.getConnection()) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.setString(1, username);
+                    try (var resultSet = preparedStatement.executeQuery()) {
+                        if (resultSet.next()) {
+                            return readUserData(resultSet);
+                        }
+                    }
+                }
+            } catch (SQLException ex) {
+                throw new DataAccessException("Unable to update database", ex);
+            }
+        }
         return null;
+    }
+
+    private UserData readUserData(ResultSet rs) throws SQLException {
+        var username = rs.getString("username");
+        var email = rs.getString("email");
+        return new UserData(username, null, email);
     }
 
     @Override
