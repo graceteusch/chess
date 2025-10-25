@@ -203,8 +203,9 @@ public class SqlDataAccess implements DataAccessObject {
     }
 
     @Override
-    public void clearAuths() {
-
+    public void clearAuths() throws DataAccessException {
+        var statement = "TRUNCATE authdata";
+        executeUpdate(statement);
     }
 
     @Override

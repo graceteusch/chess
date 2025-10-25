@@ -32,8 +32,20 @@ class DataAccessObjectTest {
 
 
     @Test
-    void getUser() {
+    void getUser() throws DataAccessException {
+        db.createUser(basicTestUser);
+        var createdUser = db.getUser(basicTestUser.username());
 
+
+        assertNotNull(createdUser);
+        assertEquals(basicTestUser.username(), createdUser.username());
+        assertEquals(basicTestUser.email(), createdUser.email());
+    }
+
+    @Test
+    void getUserInvalid() throws DataAccessException {
+        var createdUser = db.getUser("nonexistentUsername");
+        assertNull(createdUser);
     }
 
 
