@@ -56,6 +56,9 @@ public class Server {
         } catch (UnauthorizedException ex) {
             var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             ctx.status(401).result(msg);
+        } catch (DataAccessException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(500).result(msg);
         }
     }
 
@@ -81,6 +84,9 @@ public class Server {
         } catch (AlreadyTakenException ex) {
             var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             ctx.status(403).result(msg);
+        } catch (DataAccessException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(500).result(msg);
         }
     }
 
@@ -100,6 +106,9 @@ public class Server {
         } catch (UnauthorizedException ex) {
             var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             ctx.status(401).result(msg);
+        } catch (DataAccessException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(500).result(msg);
         }
     }
 
@@ -113,6 +122,9 @@ public class Server {
         } catch (UnauthorizedException ex) {
             var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
             ctx.status(401).result(msg);
+        } catch (DataAccessException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(500).result(msg);
         }
     }
 
@@ -140,8 +152,13 @@ public class Server {
     }
 
     private void clear(Context ctx) {
-        userService.clear();
-        ctx.status(200).result();
+        try {
+            userService.clear();
+            ctx.status(200).result();
+        } catch (DataAccessException ex) {
+            var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
+            ctx.status(500).result(msg);
+        }
     }
 
     private void register(Context ctx) {

@@ -160,24 +160,41 @@ public class SqlDataAccess implements DataAccessObject {
     }
 
     @Override
-    public void clearUsers() {
+    public void clearUsers() throws DataAccessException {
         var statement = "TRUNCATE userdata";
-        try {
-            executeUpdate(statement);
-        } catch (DataAccessException ex) {
-            System.err.println("Unable to clear users" + ex.getMessage());
+        executeUpdate(statement);
+    }
+
+
+    @Override
+    public void createAuth(AuthData auth) throws DataAccessException {
+        // store auth token and username in the auth data table
+        var statement = "INSERT INTO authdata (authToken, username) VALUES (?, ?)";
+        executeUpdate(statement, auth.authToken(), auth.username());
+    }
+
+    @Override
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        var statement = "SELECT authToken, username FROM authdata WHERE authToken = ?";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return readAuthData(resultSet);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to update database", ex);
         }
-    }
-
-
-    @Override
-    public void createAuth(AuthData auth) {
-
-    }
-
-    @Override
-    public AuthData getAuth(String authToken) {
         return null;
+    }
+
+    private AuthData readAuthData(ResultSet rs) throws SQLException {
+        var authToken = rs.getString("authToken");
+        var username = rs.getString("username");
+        return new AuthData(authToken, username);
     }
 
     @Override

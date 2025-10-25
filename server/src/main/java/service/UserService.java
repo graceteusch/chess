@@ -48,7 +48,7 @@ public class UserService {
         return new AuthData(authToken, username);
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         dataAccess.clearUsers();
         dataAccess.clearAuths();
         dataAccess.clearGames();
@@ -87,7 +87,7 @@ public class UserService {
         return new AuthData(authToken, username);
     }
 
-    public void logout(String authToken) throws UnauthorizedException {
+    public void logout(String authToken) throws UnauthorizedException, DataAccessException {
         if (authToken == null || dataAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException("unauthorized");
         }

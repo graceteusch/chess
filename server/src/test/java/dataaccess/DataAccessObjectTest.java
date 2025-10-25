@@ -1,10 +1,9 @@
 package dataaccess;
 
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mindrot.jbcrypt.BCrypt;
-import service.GameService;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,11 +11,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class DataAccessObjectTest {
     private static DataAccessObject db;
     private static UserData basicTestUser;
+    private static UserService userService;
 
     @BeforeEach
     public void init() throws DataAccessException {
         db = new SqlDataAccess();
         basicTestUser = new UserData("joe", "password", "j@j.com");
+        userService = new UserService(db);
     }
 
     @Test
@@ -42,4 +43,17 @@ class DataAccessObjectTest {
         db.clearUsers();
         assertNull(db.getUser("joe"));
     }
+
+    @Test
+    void createAuth() throws DataAccessException {
+        var testAuth = new AuthData("fakeAuthToken", "joe");
+        db.createAuth(testAuth);
+
+        var createdAuth = db.getAuth(testAuth.authToken());
+
+        assertEquals(testAuth.username(), createdAuth.username());
+        assertEquals(testAuth.authToken(), createdAuth.authToken());
+    }
+
+
 }

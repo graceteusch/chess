@@ -1,6 +1,7 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
 import dataaccess.DataAccessObject;
 import model.GameData;
 
@@ -26,7 +27,7 @@ public class GameService {
 
     }
 
-    public int createGame(String authToken, String name) throws BadRequestException, UnauthorizedException {
+    public int createGame(String authToken, String name) throws BadRequestException, UnauthorizedException, DataAccessException {
 
         // 400: bad request
         if (name == null) {
@@ -44,7 +45,7 @@ public class GameService {
     }
 
     public void joinGame(String authToken, String playerColor, Integer gameID)
-            throws BadRequestException, UnauthorizedException, AlreadyTakenException {
+            throws BadRequestException, UnauthorizedException, AlreadyTakenException, DataAccessException {
         // 400: bad request - playerColor is NOT black/white, gameID is null, or gameID doesn't exist in the db
         if (playerColor == null) {
             throw new BadRequestException("bad request");
@@ -69,7 +70,7 @@ public class GameService {
         dataAccess.updateGame(gameID, playerColor, username);
     }
 
-    public Collection<GameData> listGames(String authToken) throws UnauthorizedException {
+    public Collection<GameData> listGames(String authToken) throws UnauthorizedException, DataAccessException {
         if (authToken == null || dataAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException("unauthorized");
         }
