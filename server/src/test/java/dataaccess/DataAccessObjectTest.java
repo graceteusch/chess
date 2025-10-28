@@ -79,5 +79,16 @@ class DataAccessObjectTest {
         assertEquals(testAuth.authToken(), createdAuth.authToken());
     }
 
+    @Test
+    void createAuthInvalid() throws DataAccessException {
+        // try to add a duplicate primary key
+        var testAuth = new AuthData("fakeAuthToken", "joe");
+        assertThrows(DataAccessException.class, () -> db.createAuth(testAuth));
+
+        // try to add null values
+        var nullAuth = new AuthData(null, "joe");
+        assertThrows(DataAccessException.class, () -> db.createAuth(nullAuth));
+    }
+
 
 }
