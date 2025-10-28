@@ -124,20 +124,18 @@ public class SqlDataAccess implements DataAccessObject {
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        if (username.matches("[a-zA-Z]+")) {
-            var statement = "SELECT username, password, email FROM userdata WHERE username = ?";
-            try (Connection conn = DatabaseManager.getConnection()) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.setString(1, username);
-                    try (var resultSet = preparedStatement.executeQuery()) {
-                        if (resultSet.next()) {
-                            return readUserData(resultSet);
-                        }
+        var statement = "SELECT username, password, email FROM userdata WHERE username = ?";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, username);
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return readUserData(resultSet);
                     }
                 }
-            } catch (SQLException ex) {
-                throw new DataAccessException("Unable to update database", ex);
             }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to update database", ex);
         }
         return null;
     }

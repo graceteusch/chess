@@ -11,13 +11,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class DataAccessObjectTest {
     private static DataAccessObject db;
     private static UserData basicTestUser;
-    private static UserService userService;
 
     @BeforeEach
     public void init() throws DataAccessException {
         db = new SqlDataAccess();
         basicTestUser = new UserData("joe", "password", "j@j.com");
-        userService = new UserService(db);
+        db.clearUsers();
+        db.clearAuths();
+        db.clearGames();
     }
 
 
@@ -83,11 +84,24 @@ class DataAccessObjectTest {
     void createAuthInvalid() throws DataAccessException {
         // try to add a duplicate primary key
         var testAuth = new AuthData("fakeAuthToken", "joe");
+        db.createAuth(testAuth);
         assertThrows(DataAccessException.class, () -> db.createAuth(testAuth));
 
         // try to add null values
         var nullAuth = new AuthData(null, "joe");
         assertThrows(DataAccessException.class, () -> db.createAuth(nullAuth));
+    }
+
+    @Test
+    void getAuth() throws DataAccessException {
+        var testAuth = new AuthData("fakeAuthToken", "joe");
+        db.createAuth(testAuth);
+        var createdAuth = db.getAuth(testAuth.authToken());
+
+
+        assertNotNull(createdAuth);
+        assertEquals(testAuth.authToken(), createdAuth.authToken());
+        assertEquals(testAuth.username(), createdAuth.username());
     }
 
 
