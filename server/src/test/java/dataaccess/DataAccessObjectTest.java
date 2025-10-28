@@ -104,5 +104,11 @@ class DataAccessObjectTest {
         assertEquals(testAuth.username(), createdAuth.username());
     }
 
+    @Test
+    void getAuthInvalid() throws DataAccessException {
+        var nonexistent = db.getAuth("nonexistentAuth");
+        assertNull(nonexistent);
+    }
+
 
 }
