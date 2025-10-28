@@ -6,16 +6,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.UserService;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class DataAccessObjectTest {
     private static DataAccessObject db;
     private static UserData basicTestUser;
+    private static AuthData basicTestAuth;
 
     @BeforeEach
     public void init() throws DataAccessException {
         db = new SqlDataAccess();
         basicTestUser = new UserData("joe", "password", "j@j.com");
+        basicTestAuth = new AuthData("fakeAuthToken", "joe");
         db.clearUsers();
         db.clearAuths();
         db.clearGames();
@@ -71,21 +77,19 @@ class DataAccessObjectTest {
 
     @Test
     void createAuth() throws DataAccessException {
-        var testAuth = new AuthData("fakeAuthToken", "joe");
-        db.createAuth(testAuth);
+        db.createAuth(basicTestAuth);
 
-        var createdAuth = db.getAuth(testAuth.authToken());
+        var createdAuth = db.getAuth(basicTestAuth.authToken());
 
-        assertEquals(testAuth.username(), createdAuth.username());
-        assertEquals(testAuth.authToken(), createdAuth.authToken());
+        assertEquals(basicTestAuth.username(), createdAuth.username());
+        assertEquals(basicTestAuth.authToken(), createdAuth.authToken());
     }
 
     @Test
     void createAuthInvalid() throws DataAccessException {
         // try to add a duplicate primary key
-        var testAuth = new AuthData("fakeAuthToken", "joe");
-        db.createAuth(testAuth);
-        assertThrows(DataAccessException.class, () -> db.createAuth(testAuth));
+        db.createAuth(basicTestAuth);
+        assertThrows(DataAccessException.class, () -> db.createAuth(basicTestAuth));
 
         // try to add null values
         var nullAuth = new AuthData(null, "joe");
@@ -94,20 +98,50 @@ class DataAccessObjectTest {
 
     @Test
     void getAuth() throws DataAccessException {
-        var testAuth = new AuthData("fakeAuthToken", "joe");
-        db.createAuth(testAuth);
-        var createdAuth = db.getAuth(testAuth.authToken());
+        db.createAuth(basicTestAuth);
+        var createdAuth = db.getAuth(basicTestAuth.authToken());
 
 
         assertNotNull(createdAuth);
-        assertEquals(testAuth.authToken(), createdAuth.authToken());
-        assertEquals(testAuth.username(), createdAuth.username());
+        assertEquals(basicTestAuth.authToken(), createdAuth.authToken());
+        assertEquals(basicTestAuth.username(), createdAuth.username());
     }
 
     @Test
     void getAuthInvalid() throws DataAccessException {
         var nonexistent = db.getAuth("nonexistentAuth");
         assertNull(nonexistent);
+    }
+
+    @Test
+    void deleteAuth() throws DataAccessException {
+        db.createAuth(basicTestAuth);
+        db.deleteAuth(basicTestAuth.authToken());
+        assertNull(db.getAuth(basicTestAuth.authToken()));
+    }
+
+    @Test
+    void deleteAuthInvalid() throws DataAccessException {
+//        var anotherTestAuth = new AuthData("random", "test");
+//
+//        List<AuthData> expected = new ArrayList<>();
+//        expected.add(basicTestAuth);
+//        expected.add(anotherTestAuth);
+//
+//        db.createAuth(basicTestAuth);
+//        db.createAuth(anotherTestAuth);
+//
+//        db.deleteAuth("nonexistentToken");
+//
+//        List<AuthData> actual = db.listAuths();
+//        assertPetCollectionEqual(expected, actual);
+    }
+
+    @Test
+    void clearAuths() throws DataAccessException {
+        db.createAuth(basicTestAuth);
+        db.clearAuths();
+        assertNull(db.getAuth(basicTestAuth.authToken()));
     }
 
 
