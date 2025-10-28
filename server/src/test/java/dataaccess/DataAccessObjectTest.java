@@ -20,6 +20,7 @@ class DataAccessObjectTest {
         userService = new UserService(db);
     }
 
+
     @Test
     void createUser() throws DataAccessException {
         db.createUser(basicTestUser);
@@ -28,6 +29,17 @@ class DataAccessObjectTest {
 
         assertEquals(basicTestUser.username(), createdUser.username());
         assertEquals(basicTestUser.email(), createdUser.email());
+    }
+
+    @Test
+    void createUserInvalid() throws DataAccessException {
+        // try to add a duplicate primary key
+        db.createUser(basicTestUser);
+        assertThrows(DataAccessException.class, () -> db.createUser(basicTestUser));
+
+        // try to add null values
+        var invalidTestUser = new UserData(null, null, null);
+        assertThrows(DataAccessException.class, () -> db.createUser(invalidTestUser));
     }
 
 

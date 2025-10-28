@@ -24,11 +24,10 @@ public class SqlDataAccess implements DataAccessObject {
             // user data table
             """
             CREATE TABLE IF NOT EXISTS  userdata (
-              `id` int NOT NULL AUTO_INCREMENT,
               `username` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`id`),
+              PRIMARY KEY (`username`),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
@@ -120,16 +119,6 @@ public class SqlDataAccess implements DataAccessObject {
         var statement = "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
         var password = hashUserPassword(u.password());
         executeUpdate(statement, u.username(), password, u.email());
-//        try (Connection conn = DatabaseManager.getConnection()) {
-//            try (var preparedStatement = conn.prepareStatement(statement)) {
-//                preparedStatement.setString(1, u.username());
-//                preparedStatement.setString(2, password);
-//                preparedStatement.setString(3, u.email());
-//                preparedStatement.executeUpdate();
-//            }
-//        } catch (SQLException ex) {
-//            throw new DataAccessException("Unable to update database", ex);
-//        }
     }
 
 
@@ -198,8 +187,9 @@ public class SqlDataAccess implements DataAccessObject {
     }
 
     @Override
-    public void deleteAuth(String authToken) {
-
+    public void deleteAuth(String authToken) throws DataAccessException {
+        var statement = "DELETE FROM authdata WHERE authToken=?";
+        executeUpdate(statement, authToken);
     }
 
     @Override
@@ -234,7 +224,8 @@ public class SqlDataAccess implements DataAccessObject {
     }
 
     @Override
-    public void clearGames() {
-
+    public void clearGames() throws DataAccessException {
+        var statement = "TRUNCATE gamedata";
+        executeUpdate(statement);
     }
 }

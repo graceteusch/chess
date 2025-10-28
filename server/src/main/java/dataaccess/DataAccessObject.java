@@ -19,7 +19,7 @@ public interface DataAccessObject {
 
     AuthData getAuth(String authToken) throws DataAccessException;
 
-    void deleteAuth(String authToken);
+    void deleteAuth(String authToken) throws DataAccessException;
 
     void clearAuths() throws DataAccessException;
 
@@ -33,6 +33,6 @@ public interface DataAccessObject {
 
     void updateGame(int gameID, String playerColor, String username);
 
-    void clearGames();
+    void clearGames() throws DataAccessException;
 
 }
