@@ -176,4 +176,10 @@ class DataAccessObjectTest {
         assertEquals(basicTestAuth.username(), createdAuth.username());
     }
 
+    @Test
+    void getGameInvalid() throws DataAccessException {
+        var nonexistent = db.getGame(17);
+        assertNull(nonexistent);
+    }
+
 }
