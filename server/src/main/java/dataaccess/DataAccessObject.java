@@ -23,9 +23,9 @@ public interface DataAccessObject {
 
     void clearAuths() throws DataAccessException;
 
-    void createGame(GameData game);
+    void createGame(GameData game) throws DataAccessException;
 
-    GameData getGame(int gameID);
+    GameData getGame(int gameID) throws DataAccessException;
 
     Collection<GameData> listGames();
 

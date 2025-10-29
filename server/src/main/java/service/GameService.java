@@ -12,7 +12,7 @@ public class GameService {
     private final DataAccessObject dataAccess;
     int newGameID = 1;
 
-    private int generateGameID() {
+    private int generateGameID() throws DataAccessException {
         Random random = new Random();
         int randomID = random.nextInt();
         while (dataAccess.getGame(randomID) != null) {

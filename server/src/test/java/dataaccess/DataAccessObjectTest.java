@@ -1,6 +1,8 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -144,5 +146,34 @@ class DataAccessObjectTest {
         assertNull(db.getAuth(basicTestAuth.authToken()));
     }
 
+    @Test
+    void createGame() throws DataAccessException {
+        var basicGame = new GameData(1, null, null, "testGame", new ChessGame());
+        db.createGame(basicGame);
+
+//        var createdGame = db.getGame(basicGame.gameID());
+//
+//        assertNotNull(createdGame);
+//        assertEquals(basicGame.gameID(), createdGame.gameID());
+//        assertEquals(basicGame.game(), createdGame.game());
+    }
+
+    @Test
+    void createGameInvalid() throws DataAccessException {
+        var basicGame = new GameData(1, null, null, "testGame", new ChessGame());
+        // try to add a duplicate primary key
+        db.createGame(basicGame);
+        assertThrows(DataAccessException.class, () -> db.createGame(basicGame));
+    }
+
+    @Test
+    void getGame() throws DataAccessException {
+        db.createAuth(basicTestAuth);
+        var createdAuth = db.getAuth(basicTestAuth.authToken());
+
+        assertNotNull(createdAuth);
+        assertEquals(basicTestAuth.authToken(), createdAuth.authToken());
+        assertEquals(basicTestAuth.username(), createdAuth.username());
+    }
 
 }

@@ -1,5 +1,7 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -92,9 +94,9 @@ public class SqlDataAccess implements DataAccessObject {
                     Object param = params[i];
                     if (param instanceof String p) {
                         preparedStatement.setString(i + 1, p);
+                    } else if (param instanceof Integer p) {
+                        preparedStatement.setInt(i + 1, p);
                     }
-//                    else if (param instanceof Integer p) {
-//                        preparedStatement.setInt(i + 1, p);
 //                    } else if (param instanceof PetType p) {
 //                        preparedStatement.setString(i + 1, p.toString());
 //                    }
@@ -198,14 +200,42 @@ public class SqlDataAccess implements DataAccessObject {
     }
 
     @Override
-    public void createGame(GameData game) {
-
+    public void createGame(GameData game) throws DataAccessException {
+        // store username password and email in the userdata table
+        var statement = "INSERT INTO gamedata (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+        String gameJson = new Gson().toJson(game.game());
+        System.out.println(gameJson);
+        executeUpdate(statement, game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), gameJson);
     }
 
     @Override
-    public GameData getGame(int gameID) {
+    public GameData getGame(int gameID) throws DataAccessException {
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM gamedata WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, gameID + "");
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return readGameData(resultSet);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to update database", ex);
+        }
         return null;
     }
+
+    private GameData readGameData(ResultSet rs) throws SQLException {
+        var gameID = Integer.parseInt(rs.getString("gameID"));
+        var whiteUsername = rs.getString("whiteUsername");
+        var blackUsername = rs.getString("blackUsername");
+        var gameName = rs.getString("gameName");
+        var gameJson = rs.getString("game");
+        var game = new Gson().fromJson(gameJson, ChessGame.class);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+    }
+
 
     @Override
     public Collection<GameData> listGames() {
