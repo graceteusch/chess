@@ -205,7 +205,6 @@ public class SqlDataAccess implements DataAccessObject {
         // store username password and email in the userdata table
         var statement = "INSERT INTO gamedata (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
         String gameJson = new Gson().toJson(game.game());
-        System.out.println(gameJson);
         executeUpdate(statement, game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), gameJson);
     }
 
@@ -240,7 +239,7 @@ public class SqlDataAccess implements DataAccessObject {
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
-        var result = new HashSet<GameData>();
+        var result = new ArrayList<GameData>();
 
         var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM gamedata";
         try (Connection conn = DatabaseManager.getConnection()) {

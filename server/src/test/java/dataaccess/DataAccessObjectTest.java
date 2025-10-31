@@ -189,12 +189,17 @@ class DataAccessObjectTest {
 
     @Test
     void listGames() throws DataAccessException {
-        db.createAuth(basicTestAuth);
-        var createdAuth = db.getAuth(basicTestAuth.authToken());
+        var basicGame = new GameData(1, null, null, "testGame", new ChessGame());
+        db.createGame(basicGame);
+        var anotherGame = new GameData(2, "hello", "hi", "testGame", new ChessGame());
+        db.createGame(anotherGame);
 
-        assertNotNull(createdAuth);
-        assertEquals(basicTestAuth.authToken(), createdAuth.authToken());
-        assertEquals(basicTestAuth.username(), createdAuth.username());
+        var listOfGames = db.listGames();
+
+        assertNotNull(listOfGames);
+        assertEquals(2, listOfGames.size());
+        assertTrue(listOfGames.contains(basicGame));
+        assertTrue(listOfGames.contains(anotherGame));
     }
 
 }
