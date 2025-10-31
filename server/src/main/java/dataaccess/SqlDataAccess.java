@@ -78,11 +78,7 @@ public class SqlDataAccess implements DataAccessObject {
                         preparedStatement.setString(i + 1, p);
                     } else if (param instanceof Integer p) {
                         preparedStatement.setInt(i + 1, p);
-                    }
-//                    } else if (param instanceof PetType p) {
-//                        preparedStatement.setString(i + 1, p.toString());
-//                    }
-                    else if (param == null) {
+                    } else if (param == null) {
                         preparedStatement.setNull(i + 1, NULL);
                     }
                 }

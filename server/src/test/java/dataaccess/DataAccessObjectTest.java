@@ -152,11 +152,11 @@ class DataAccessObjectTest {
         var basicGame = new GameData(1, null, null, "testGame", new ChessGame());
         db.createGame(basicGame);
 
-//        var createdGame = db.getGame(basicGame.gameID());
-//
-//        assertNotNull(createdGame);
-//        assertEquals(basicGame.gameID(), createdGame.gameID());
-//        assertEquals(basicGame.game(), createdGame.game());
+        var createdGame = db.getGame(basicGame.gameID());
+
+        assertNotNull(createdGame);
+        assertEquals(basicGame.gameID(), createdGame.gameID());
+        assertEquals(basicGame.game(), createdGame.game());
     }
 
     @Test

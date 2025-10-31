@@ -91,9 +91,6 @@ public class UserService {
         if (!verifyUserPassword(username, password)) {
             throw new UnauthorizedException("unauthorized");
         }
-//        if (!currUser.password().equals(password)) {
-//            throw new UnauthorizedException("unauthorized");
-//        }
 
         // generate authToken
         String authToken = generateAuthToken();
