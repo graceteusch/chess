@@ -29,7 +29,7 @@ public interface DataAccessObject {
 
     Collection<GameData> listGames() throws DataAccessException;
 
-    boolean isColorTaken(int gameID, String playerColor);
+    boolean isColorTaken(int gameID, String playerColor) throws DataAccessException;
 
     void updateGame(int gameID, String playerColor, String username);
 

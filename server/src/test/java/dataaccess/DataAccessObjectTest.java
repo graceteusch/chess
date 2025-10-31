@@ -209,4 +209,20 @@ class DataAccessObjectTest {
         assertTrue(listOfGames.isEmpty());
     }
 
+    @Test
+    void isColorTaken() throws DataAccessException {
+        // both colors are available
+        var noColorTaken = new GameData(1, null, null, "testGame", new ChessGame());
+        db.createGame(noColorTaken);
+        assertFalse(db.isColorTaken(noColorTaken.gameID(), "WHITE"));
+        assertFalse(db.isColorTaken(noColorTaken.gameID(), "BLACK"));
+
+        // both colors are unavailable
+        var bothColorsTaken = new GameData(3, "white", "black", "testGame", new ChessGame());
+        db.createGame(bothColorsTaken);
+        assertTrue(db.isColorTaken(bothColorsTaken.gameID(), "WHITE"));
+        assertTrue(db.isColorTaken(bothColorsTaken.gameID(), "BLACK"));
+    }
+
+
 }

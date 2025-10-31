@@ -10,10 +10,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static java.sql.Types.NULL;
 
@@ -258,26 +255,16 @@ public class SqlDataAccess implements DataAccessObject {
         return result;
     }
 
-//    public PetList listPets() throws ResponseException {
-//        var result = new PetList();
-//        try (Connection conn = DatabaseManager.getConnection()) {
-//            var statement = "SELECT id, json FROM pet";
-//            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-//                try (ResultSet rs = ps.executeQuery()) {
-//                    while (rs.next()) {
-//                        result.add(readPet(rs));
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to read data: %s", e.getMessage()));
-//        }
-//        return result;
-//    }
-
     @Override
-    public boolean isColorTaken(int gameID, String playerColor) {
-        return false;
+    public boolean isColorTaken(int gameID, String playerColor) throws DataAccessException {
+        var game = getGame(gameID);
+        if (playerColor.equals("WHITE") && game.whiteUsername() != null) {
+            return true;
+        } else if (playerColor.equals("BLACK") && game.blackUsername() != null) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
