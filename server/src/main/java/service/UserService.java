@@ -4,6 +4,7 @@ import dataaccess.DataAccessException;
 import dataaccess.DataAccessObject;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -17,6 +18,18 @@ public class UserService {
     // generate a token when a user registers or logs in
     private String generateAuthToken() {
         return UUID.randomUUID().toString();
+    }
+
+    private String hashUserPassword(String clearTextPassword) {
+        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+    }
+
+    private boolean verifyUserPassword(String username, String providedClearTextPassword) throws DataAccessException {
+        // read the previously hashed password from the database
+        var user = dataAccess.getUser(username);
+        var hashedPassword = user.password();
+
+        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
     }
 
     // return AuthData and take UserData instead of using RegisterRequest/Results !!
@@ -38,7 +51,8 @@ public class UserService {
         // if data is null
         // call the userDAO createUser function
         // create a new UserData object using the given fields and pass it to createUser
-        dataAccess.createUser(new UserData(username, password, email));
+        var hashed = hashUserPassword(user.password());
+        dataAccess.createUser(new UserData(username, hashed, email));
 
         // generate an authToken
         String authToken = generateAuthToken();
@@ -74,9 +88,12 @@ public class UserService {
 
         // check password
         // 401: unauthorized
-        if (!currUser.password().equals(password)) {
+        if (!verifyUserPassword(username, password)) {
             throw new UnauthorizedException("unauthorized");
         }
+//        if (!currUser.password().equals(password)) {
+//            throw new UnauthorizedException("unauthorized");
+//        }
 
         // generate authToken
         String authToken = generateAuthToken();
@@ -93,5 +110,7 @@ public class UserService {
         }
         dataAccess.deleteAuth(authToken);
     }
+
+
 }
 

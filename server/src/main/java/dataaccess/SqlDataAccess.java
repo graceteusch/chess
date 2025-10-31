@@ -69,22 +69,6 @@ public class SqlDataAccess implements DataAccessObject {
         }
     }
 
-    private String hashUserPassword(String clearTextPassword) {
-        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
-    }
-
-    private boolean verifyUserPassword(String username, String providedClearTextPassword) {
-        // read the previously hashed password from the database
-        var hashedPassword = readHashedPasswordFromDatabase(username);
-
-        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
-    }
-
-    private String readHashedPasswordFromDatabase(String username) {
-
-        return "";
-    }
-
     private void executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
@@ -118,8 +102,7 @@ public class SqlDataAccess implements DataAccessObject {
     public void createUser(UserData u) throws DataAccessException {
         // store username password and email in the userdata table
         var statement = "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
-        var password = hashUserPassword(u.password());
-        executeUpdate(statement, u.username(), password, u.email());
+        executeUpdate(statement, u.username(), u.password(), u.email());
     }
 
 
@@ -144,7 +127,8 @@ public class SqlDataAccess implements DataAccessObject {
     private UserData readUserData(ResultSet rs) throws SQLException {
         var username = rs.getString("username");
         var email = rs.getString("email");
-        return new UserData(username, null, email);
+        var password = rs.getString("password");
+        return new UserData(username, password, email);
     }
 
     @Override

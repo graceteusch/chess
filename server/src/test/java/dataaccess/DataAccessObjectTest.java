@@ -215,7 +215,7 @@ class DataAccessObjectTest {
         var basicGame = new GameData(1, null, null, "testGame", new ChessGame());
         db.createGame(basicGame);
 
-        db.updateGame(basicGame.gameID(), "WHITE", "testUsername");
+        db.updateGame(basicGame.gameID(), "WHITE", "testUsername", null);
 
         var updatedGame = db.getGame(basicGame.gameID());
 
@@ -231,7 +231,7 @@ class DataAccessObjectTest {
         // try to insert an injection (?)
 
         // invalid player color
-        assertThrows(DataAccessException.class, () -> db.updateGame(basicGame.gameID(), "GREEN", "testUsername"));
+        assertThrows(DataAccessException.class, () -> db.updateGame(basicGame.gameID(), "GREEN", "testUsername", null));
     }
 
 
