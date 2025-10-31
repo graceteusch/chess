@@ -21,6 +21,18 @@ public class GameService {
         return randomID;
     }
 
+    private boolean isColorTaken(int gameID, String playerColor) throws DataAccessException {
+        var game = dataAccess.getGame(gameID);
+        if (game != null) {
+            if (playerColor.equals("WHITE") && game.whiteUsername() != null) {
+                return true;
+            } else if (playerColor.equals("BLACK") && game.blackUsername() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public GameService(DataAccessObject dataAccess) {
         this.dataAccess = dataAccess;
@@ -61,10 +73,14 @@ public class GameService {
         if (authToken == null || dataAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException("unauthorized");
         }
-
-        if (dataAccess.isColorTaken(gameID, playerColor)) {
-            throw new AlreadyTakenException("already taken");
+        try {
+            if (isColorTaken(gameID, playerColor)) {
+                throw new AlreadyTakenException("already taken");
+            }
+        } catch (DataAccessException ex) {
+            throw new BadRequestException("bad request");
         }
+
         var authData = dataAccess.getAuth(authToken);
         var username = authData.username();
         dataAccess.updateGame(gameID, playerColor, username);

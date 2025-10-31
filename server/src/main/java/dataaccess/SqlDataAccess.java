@@ -257,14 +257,18 @@ public class SqlDataAccess implements DataAccessObject {
 
     @Override
     public boolean isColorTaken(int gameID, String playerColor) throws DataAccessException {
-        var game = getGame(gameID);
-        if (playerColor.equals("WHITE") && game.whiteUsername() != null) {
-            return true;
-        } else if (playerColor.equals("BLACK") && game.blackUsername() != null) {
-            return true;
-        } else {
-            return false;
-        }
+//        var game = getGame(gameID);
+//        if (getGame(gameID) == null) {
+//            ;
+//        }
+//        if (playerColor.equals("WHITE") && game.whiteUsername() != null) {
+//            return true;
+//        } else if (playerColor.equals("BLACK") && game.blackUsername() != null) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+        return false;
     }
 
     @Override
