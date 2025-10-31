@@ -202,4 +202,11 @@ class DataAccessObjectTest {
         assertTrue(listOfGames.contains(anotherGame));
     }
 
+    @Test
+    void listGamesInvalid() throws DataAccessException {
+        // try to list games when there are none
+        var listOfGames = db.listGames();
+        assertTrue(listOfGames.isEmpty());
+    }
+
 }
