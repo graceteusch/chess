@@ -168,18 +168,33 @@ class DataAccessObjectTest {
 
     @Test
     void getGame() throws DataAccessException {
-        db.createAuth(basicTestAuth);
-        var createdAuth = db.getAuth(basicTestAuth.authToken());
+        var basicGame = new GameData(1, null, null, "testGame", new ChessGame());
+        db.createGame(basicGame);
 
-        assertNotNull(createdAuth);
-        assertEquals(basicTestAuth.authToken(), createdAuth.authToken());
-        assertEquals(basicTestAuth.username(), createdAuth.username());
+        var createdGame = db.getGame(basicGame.gameID());
+
+        assertNotNull(createdGame);
+        assertEquals(basicGame.gameID(), createdGame.gameID());
+        assertEquals(basicGame.whiteUsername(), createdGame.whiteUsername());
+        assertEquals(basicGame.blackUsername(), createdGame.blackUsername());
+        assertEquals(basicGame.gameName(), createdGame.gameName());
+        assertEquals(basicGame.game(), createdGame.game());
     }
 
     @Test
     void getGameInvalid() throws DataAccessException {
         var nonexistent = db.getGame(17);
         assertNull(nonexistent);
+    }
+
+    @Test
+    void listGames() throws DataAccessException {
+        db.createAuth(basicTestAuth);
+        var createdAuth = db.getAuth(basicTestAuth.authToken());
+
+        assertNotNull(createdAuth);
+        assertEquals(basicTestAuth.authToken(), createdAuth.authToken());
+        assertEquals(basicTestAuth.username(), createdAuth.username());
     }
 
 }

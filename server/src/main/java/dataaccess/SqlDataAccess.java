@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import static java.sql.Types.NULL;
@@ -238,9 +239,42 @@ public class SqlDataAccess implements DataAccessObject {
 
 
     @Override
-    public Collection<GameData> listGames() {
-        return List.of();
+    public Collection<GameData> listGames() throws DataAccessException {
+        var result = new HashSet<GameData>();
+
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM gamedata";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        result.add(readGameData(resultSet));
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to update database", ex);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
     }
+
+//    public PetList listPets() throws ResponseException {
+//        var result = new PetList();
+//        try (Connection conn = DatabaseManager.getConnection()) {
+//            var statement = "SELECT id, json FROM pet";
+//            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+//                try (ResultSet rs = ps.executeQuery()) {
+//                    while (rs.next()) {
+//                        result.add(readPet(rs));
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            throw new ResponseException(ResponseException.Code.ServerError, String.format("Unable to read data: %s", e.getMessage()));
+//        }
+//        return result;
+//    }
 
     @Override
     public boolean isColorTaken(int gameID, String playerColor) {

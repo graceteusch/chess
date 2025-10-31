@@ -27,7 +27,7 @@ public interface DataAccessObject {
 
     GameData getGame(int gameID) throws DataAccessException;
 
-    Collection<GameData> listGames();
+    Collection<GameData> listGames() throws DataAccessException;
 
     boolean isColorTaken(int gameID, String playerColor);
 
