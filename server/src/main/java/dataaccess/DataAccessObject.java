@@ -14,7 +14,6 @@ public interface DataAccessObject {
 
     void clearUsers() throws DataAccessException;
 
-
     void createAuth(AuthData auth) throws DataAccessException;
 
     AuthData getAuth(String authToken) throws DataAccessException;
@@ -23,15 +22,15 @@ public interface DataAccessObject {
 
     void clearAuths() throws DataAccessException;
 
+    Collection<AuthData> listAuths() throws DataAccessException;
+
     void createGame(GameData game) throws DataAccessException;
 
     GameData getGame(int gameID) throws DataAccessException;
 
     Collection<GameData> listGames() throws DataAccessException;
 
-    boolean isColorTaken(int gameID, String playerColor) throws DataAccessException;
-
-    void updateGame(int gameID, String playerColor, String username);
+    void updateGame(int gameID, String playerColor, String username) throws DataAccessException;
 
     void clearGames() throws DataAccessException;
 

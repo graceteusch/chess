@@ -49,6 +49,11 @@ public class MemoryDataAccessObject implements DataAccessObject {
     }
 
     @Override
+    public Collection<AuthData> listAuths() throws DataAccessException {
+        return List.of();
+    }
+
+    @Override
     public void createGame(GameData game) {
         games.put(game.gameID(), game);
     }
@@ -61,16 +66,6 @@ public class MemoryDataAccessObject implements DataAccessObject {
     @Override
     public Collection<GameData> listGames() {
         return games.values();
-    }
-
-    @Override
-    public boolean isColorTaken(int gameID, String playerColor) {
-        if (playerColor.equals("WHITE") && games.get(gameID).whiteUsername() != null) {
-            return true;
-        } else if ((playerColor.equals("BLACK") && games.get(gameID).blackUsername() != null)) {
-            return true;
-        }
-        return false;
     }
 
     @Override

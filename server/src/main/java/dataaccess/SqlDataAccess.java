@@ -198,6 +198,27 @@ public class SqlDataAccess implements DataAccessObject {
     }
 
     @Override
+    public Collection<AuthData> listAuths() throws DataAccessException {
+        var result = new ArrayList<AuthData>();
+
+        var statement = "SELECT authToken, username FROM authdata";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        result.add(readAuthData(resultSet));
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to update database", ex);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
+    }
+
+    @Override
     public void createGame(GameData game) throws DataAccessException {
         // store username password and email in the userdata table
         var statement = "INSERT INTO gamedata (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
@@ -256,25 +277,21 @@ public class SqlDataAccess implements DataAccessObject {
     }
 
     @Override
-    public boolean isColorTaken(int gameID, String playerColor) throws DataAccessException {
-//        var game = getGame(gameID);
-//        if (getGame(gameID) == null) {
-//            ;
-//        }
-//        if (playerColor.equals("WHITE") && game.whiteUsername() != null) {
-//            return true;
-//        } else if (playerColor.equals("BLACK") && game.blackUsername() != null) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-        return false;
-    }
-
-    @Override
-    public void updateGame(int gameID, String playerColor, String username) {
+    public void updateGame(int gameID, String playerColor, String username) throws DataAccessException {
+        // find the game at gameID, set the corresponding username value to the given username
+        var statement = "";
+        if (playerColor.equals("WHITE")) {
+            statement = "UPDATE gamedata SET whiteUsername = ? WHERE gameID = ?";
+            executeUpdate(statement, username, gameID);
+        } else if (playerColor.equals("BLACK")) {
+            statement = "UPDATE gamedata SET blackUsername = ? WHERE gameID = ?";
+            executeUpdate(statement, username, gameID);
+        } else { // throw an error if the player color doesn't match?
+            throw new DataAccessException("bad request");
+        }
 
     }
+
 
     @Override
     public void clearGames() throws DataAccessException {

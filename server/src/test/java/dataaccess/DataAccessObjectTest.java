@@ -124,19 +124,20 @@ class DataAccessObjectTest {
 
     @Test
     void deleteAuthInvalid() throws DataAccessException {
-//        var anotherTestAuth = new AuthData("random", "test");
-//
-//        List<AuthData> expected = new ArrayList<>();
-//        expected.add(basicTestAuth);
-//        expected.add(anotherTestAuth);
-//
-//        db.createAuth(basicTestAuth);
-//        db.createAuth(anotherTestAuth);
-//
-//        db.deleteAuth("nonexistentToken");
-//
-//        List<AuthData> actual = db.listAuths();
-//        assertPetCollectionEqual(expected, actual);
+        var anotherTestAuth = new AuthData("random", "test");
+
+        Collection<AuthData> expected = new ArrayList<>();
+        expected.add(basicTestAuth);
+        expected.add(anotherTestAuth);
+
+        db.createAuth(basicTestAuth);
+        db.createAuth(anotherTestAuth);
+
+        // delete a nonexistent token
+        db.deleteAuth("nonexistentToken");
+
+        Collection<AuthData> actual = db.listAuths();
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -209,32 +210,29 @@ class DataAccessObjectTest {
         assertTrue(listOfGames.isEmpty());
     }
 
-//    @Test
-//    void isColorTaken() throws DataAccessException {
-//        // both colors are available
-//        var noColorTaken = new GameData(1, null, null, "testGame", new ChessGame());
-//        db.createGame(noColorTaken);
-//        assertFalse(db.isColorTaken(noColorTaken.gameID(), "WHITE"));
-//        assertFalse(db.isColorTaken(noColorTaken.gameID(), "BLACK"));
-//
-//        // both colors are unavailable
-//        var bothColorsTaken = new GameData(3, "white", "black", "testGame", new ChessGame());
-//        db.createGame(bothColorsTaken);
-//        assertTrue(db.isColorTaken(bothColorsTaken.gameID(), "WHITE"));
-//        assertTrue(db.isColorTaken(bothColorsTaken.gameID(), "BLACK"));
-//    }
+    @Test
+    void updateGame() throws DataAccessException {
+        var basicGame = new GameData(1, null, null, "testGame", new ChessGame());
+        db.createGame(basicGame);
 
-//    @Test
-//    void isColorTakenInvalid() throws DataAccessException {
-//        var basicGame = new GameData(1, null, null, "testGame", new ChessGame());
-//        db.createGame(basicGame);
-//
-//        // call with a nonexistent gameID
-//        assertThrows(DataAccessException.class, () -> db.isColorTaken(24, "WHITE"));
-//
-//        // call with an invalid player color
-//        assertThrows(DataAccessException.class, () -> db.isColorTaken(1, "GREEN"));
-//    }
+        db.updateGame(basicGame.gameID(), "WHITE", "testUsername");
+
+        var updatedGame = db.getGame(basicGame.gameID());
+
+        assertNotNull(updatedGame.whiteUsername());
+        assertEquals("testUsername", updatedGame.whiteUsername());
+    }
+
+    @Test
+    void updateGameInvalid() throws DataAccessException {
+        var basicGame = new GameData(1, null, null, "testGame", new ChessGame());
+        db.createGame(basicGame);
+
+        // try to insert an injection (?)
+
+        // invalid player color
+        assertThrows(DataAccessException.class, () -> db.updateGame(basicGame.gameID(), "GREEN", "testUsername"));
+    }
 
 
 }
