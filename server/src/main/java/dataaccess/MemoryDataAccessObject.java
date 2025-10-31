@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -69,7 +70,7 @@ public class MemoryDataAccessObject implements DataAccessObject {
     }
 
     @Override
-    public void updateGame(int gameID, String playerColor, String username) {
+    public void updateGame(int gameID, String playerColor, String username, ChessGame updatedGame) {
         GameData game = games.get(gameID);
         if (playerColor.equals("WHITE")) {
             GameData updatedGameData = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game());

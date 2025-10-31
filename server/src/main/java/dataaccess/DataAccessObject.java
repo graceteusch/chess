@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -30,7 +31,7 @@ public interface DataAccessObject {
 
     Collection<GameData> listGames() throws DataAccessException;
 
-    void updateGame(int gameID, String playerColor, String username) throws DataAccessException;
+    void updateGame(int gameID, String playerColor, String username, ChessGame game) throws DataAccessException;
 
     void clearGames() throws DataAccessException;
 

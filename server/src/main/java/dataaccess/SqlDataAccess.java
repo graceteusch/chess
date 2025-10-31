@@ -277,19 +277,24 @@ public class SqlDataAccess implements DataAccessObject {
     }
 
     @Override
-    public void updateGame(int gameID, String playerColor, String username) throws DataAccessException {
-        // find the game at gameID, set the corresponding username value to the given username
-        var statement = "";
-        if (playerColor.equals("WHITE")) {
-            statement = "UPDATE gamedata SET whiteUsername = ? WHERE gameID = ?";
-            executeUpdate(statement, username, gameID);
-        } else if (playerColor.equals("BLACK")) {
-            statement = "UPDATE gamedata SET blackUsername = ? WHERE gameID = ?";
-            executeUpdate(statement, username, gameID);
-        } else { // throw an error if the player color doesn't match?
-            throw new DataAccessException("bad request");
+    public void updateGame(int gameID, String playerColor, String username, ChessGame game) throws DataAccessException {
+        if (game == null) { // just joining a game
+            // find the game at gameID, set the corresponding username value to the given username
+            var statement = "";
+            if (playerColor.equals("WHITE")) {
+                statement = "UPDATE gamedata SET whiteUsername = ? WHERE gameID = ?";
+                executeUpdate(statement, username, gameID);
+            } else if (playerColor.equals("BLACK")) {
+                statement = "UPDATE gamedata SET blackUsername = ? WHERE gameID = ?";
+                executeUpdate(statement, username, gameID);
+            } else { // throw an error if the player color doesn't match?
+                throw new DataAccessException("bad request");
+            }
+        } else {
+            String gameJson = new Gson().toJson(game);
+            var statement = "UPDATE gamedata SET game = ? WHERE game ID = ?";
+            executeUpdate(statement, gameJson, gameID);
         }
-
     }
 
 

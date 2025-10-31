@@ -83,7 +83,7 @@ public class GameService {
 
         var authData = dataAccess.getAuth(authToken);
         var username = authData.username();
-        dataAccess.updateGame(gameID, playerColor, username);
+        dataAccess.updateGame(gameID, playerColor, username, null);
     }
 
     public Collection<GameData> listGames(String authToken) throws UnauthorizedException, DataAccessException {
