@@ -88,7 +88,7 @@ public class ServerFacade {
             if (body != null) {
                 throw ServerResponseException.fromJson(status, body);
             }
-            throw new ServerResponseException(status, "Server threw error with no message");
+            throw new ServerResponseException(status, "Server threw error with no message: " + status);
         }
 
         if (responseClass != null) {

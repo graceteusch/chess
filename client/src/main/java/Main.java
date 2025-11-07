@@ -2,7 +2,7 @@ import chess.*;
 import ui.PreloginClient;
 import server.Server;
 
-// heyou will still need to start your server using the Main.main function when you manually run your client.
+// you will still need to start your server using the Main.main function when you manually run your client.
 public class Main {
     public static void main(String[] args) {
         System.out.println("♕ 240 Chess Client");

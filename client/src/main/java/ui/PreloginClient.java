@@ -23,7 +23,7 @@ public class PreloginClient {
         var result = "";
         while (!result.equals("Quit")) {
             //printPrompt();
-            System.out.println("[" + state + "] >>>>");
+            System.out.print("[" + state + "] >>>> ");
             String line = scanner.nextLine();
 
             try {
@@ -82,10 +82,11 @@ public class PreloginClient {
     private String help() {
         if (state == ReplState.LOGGEDOUT) {
             return """
-                    - register <USERNAME> <PASSWORD> <EMAIL> - create an account!
-                    - login - if you already registered, login to play chess!
-                    - quit - exit chess
-                    - help - list all possible commands
+                    Commands you can use:
+                    - Register <USERNAME> <PASSWORD> <EMAIL> - create an account!
+                    - Login - if you already registered, login to play chess!
+                    - Quit - exit chess :(
+                    - Help - list all possible commands!
                     """;
         }
         return "";
