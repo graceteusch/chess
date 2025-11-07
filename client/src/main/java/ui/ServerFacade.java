@@ -3,6 +3,7 @@ package ui;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
+import server.Server;
 
 import java.io.IOException;
 import java.net.URI;
@@ -27,18 +28,19 @@ public class ServerFacade {
         return handleResponse(response, AuthData.class);
     }
 
+
+    // login - server response returns authdata (?)
+    public AuthData login(UserData user) throws ServerResponseException {
+        var request = buildRequest("POST", "/session", user);
+        var response = sendRequest(request);
+        return handleResponse(response, AuthData.class);
+    }
+
     // clear
     public void clear() throws ServerResponseException {
         var request = buildRequest("DELETE", "/db", null);
         sendRequest(request);
     }
-
-    // login
-//    public UserData login(UserData user) throws IOException, InterruptedException {
-//        var request = buildRequest("POST", "/session", user);
-//        var response = sendRequest(request);
-//        return handleResponse(response, UserData.class);
-//    }
 
     // logout
 

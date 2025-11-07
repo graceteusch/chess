@@ -23,16 +23,16 @@ public class PreloginClient {
         var result = "";
         while (!result.equals("Quit")) {
             //printPrompt();
-            System.out.println("prompt/current state");
+            System.out.println("[" + state + "] >>>>");
             String line = scanner.nextLine();
 
             try {
                 result = evaluate(line);
-                System.out.print(result);
+                System.out.println(result);
             } catch (Throwable ex) {
                 // if there input is invalid, this should be the error that is caught and message that is printed out to the user
                 var msg = ex.toString();
-                System.out.print(msg);
+                System.out.println(msg);
             }
         }
         System.out.println("Goodbye :(");
@@ -45,8 +45,8 @@ public class PreloginClient {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "register" -> register(params);
-                //case "login" -> login(params);
-                case "quit" -> "quit";
+                case "login" -> login(params);
+                case "quit" -> "Quit";
                 default -> help();
             };
         } catch (Throwable ex) {
@@ -65,18 +65,18 @@ public class PreloginClient {
         throw new ServerResponseException("To register, use the following format: Register <USERNAME> <PASSWORD> <EMAIL>");
     }
 
-
-//    private String login(String... params) {
-//        //Prompts the user to input login information.
-//        // Calls the server login API to log in the user.
-//        // When successfully logged in, the client should transition to the Postlogin UI.
-//        if (params.length == 2) {
-//            server.login();
-//            ReplState state = ReplState.LOGGEDIN;
-//            return "You signed in as [USERNAME].";
-//        }
-//        return "";
-//    }
+    private String login(String... params) {
+        // Prompts the user to input login information.
+        // Calls the server login API to log in the user.
+        // When successfully logged in, the client should transition to the Postlogin UI.
+        if (params.length == 2) {
+            var user = new UserData(params[0], params[1], null);
+            AuthData auth = server.login(user);
+            state = ReplState.LOGGEDIN;
+            return String.format("You logged in as %s.", currUser);
+        }
+        throw new ServerResponseException("To log in, use the following format: Login <USERNAME> <PASSWORD>");
+    }
 
 
     private String help() {
