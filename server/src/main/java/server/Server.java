@@ -51,7 +51,6 @@ public class Server {
             String authToken = ctx.header("authorization");
             Collection<GameData> allGames = gameService.listGames(authToken);
             var listGamesResponse = Map.of("games", allGames);
-
             ctx.status(200).result(serializer.toJson(listGamesResponse));
         } catch (UnauthorizedException ex) {
             var msg = String.format("{ \"message\": \"Error: %s\" }", ex.getMessage());
