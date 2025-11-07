@@ -4,6 +4,7 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
+import ui.ServerResponseException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,5 +38,11 @@ public class ServerFacadeTests {
         assertNotNull(auth);
         assertEquals(user.username(), auth.username());
         assertNotNull(auth.authToken());
+    }
+
+    @Test
+    public void registerNegative() {
+        var user = new UserData(null, "pass", "test@email.com");
+        assertThrows(ServerResponseException.class, () -> facade.register(user));
     }
 }
