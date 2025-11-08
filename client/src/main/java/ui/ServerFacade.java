@@ -2,6 +2,7 @@ package ui;
 
 import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import server.Server;
 
@@ -11,6 +12,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Collection;
+import java.util.Map;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -29,7 +31,7 @@ public class ServerFacade {
     }
 
 
-    // login - server response returns authdata (?)
+    // login - server response returns authData (?)
     public AuthData login(UserData user) throws ServerResponseException {
         var request = buildRequest("POST", "/session", user);
         var response = sendRequest(request);
@@ -53,14 +55,28 @@ public class ServerFacade {
         handleResponse(response, null);
     }
 
+    //    server.post("game", ctx -> createGame(ctx));
+    //    server.put("game", ctx -> joinGame(ctx));
+    //    server.get("game", ctx -> listGames(ctx));
+
 
     // createGame
+    public Integer createGame(AuthData user, GameData game) throws ServerResponseException {
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/game"))
+                .header("authorization", user.authToken())
+                .method("POST", makeRequestBody(game))
+                .build();
+        var response = sendRequest(request);
+        return (int) (double) handleResponse(response, Map.class).get("gameID");
+    }
 
 
     // joinGame
 
 
     // listGames
+
 
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()

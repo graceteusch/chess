@@ -1,6 +1,7 @@
 package ui;
 
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
 import java.util.Arrays;
@@ -36,12 +37,8 @@ public class PostloginClient implements Client {
         }
     }
 
-//    server.delete("session", ctx -> logout(ctx));
-//    server.post("game", ctx -> createGame(ctx));
-//    server.put("game", ctx -> joinGame(ctx));
-//    server.get("game", ctx -> listGames(ctx));
 
-//    private String register(String... params) throws Exception {
+    //    private String register(String... params) throws Exception {
 //        if (params.length == 3) {
 //            var newUser = new UserData(params[0], params[1], params[2]);
 //            AuthData auth = server.register(newUser);
@@ -67,11 +64,22 @@ public class PostloginClient implements Client {
         throw new ServerResponseException("To logout, please use the following format: Logout");
     }
 
-    private String observeGame(String... params) {
-        return "";
+    private String createGame(String... params) {
+        if (params.length == 1) {
+            String name = params[0];
+            var newGame = new GameData(null, null, null, name, null);
+            server.createGame(currUser, newGame);
+            return String.format("You created a chess game named %s.", name);
+        }
+        System.out.println("Invalid input");
+        throw new ServerResponseException("To create a game, please use the following format: Create <GAME NAME>");
     }
 
     private String listGames(String... params) {
+        return "";
+    }
+
+    private String observeGame(String... params) {
         return "";
     }
 
@@ -79,16 +87,11 @@ public class PostloginClient implements Client {
         return "";
     }
 
-    private String createGame(String... params) {
-        return "";
-    }
-
-
     @Override
     public String help() {
         return """
                 Commands you can use:
-                - Create <NAME> - create a new chess game!
+                - Create <GAME NAME> - create a new chess game!
                 - List - list all existing games
                 - Join <GAME ID> <WHITE or BLACK> - join a chess game
                 - Observe <GAME ID> - observe a chess game

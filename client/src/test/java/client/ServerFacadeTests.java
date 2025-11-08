@@ -3,6 +3,7 @@ package client;
 import dataaccess.DataAccessException;
 import dataaccess.SqlDataAccess;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -86,5 +87,33 @@ public class ServerFacadeTests {
 
         assertThrows(ServerResponseException.class, () -> facade.logout(fakeAuth));
     }
+
+    @Test
+    public void createGame() {
+        var user = new UserData("test", "pass", "test@email.com");
+        facade.register(user);
+        var auth = facade.login(user);
+
+        var game = new GameData(null, null, null, "testGame", null);
+
+        int gameID = facade.createGame(auth, game);
+        assertNotNull(gameID);
+    }
+
+    @Test
+    public void createGameNegative() {
+        var user = new UserData("test", "pass", "test@email.com");
+        facade.register(user);
+        var auth = facade.login(user);
+
+        var game = new GameData(null, null, null, "testGame", null);
+        var invalidAuth = new AuthData("fakeAuth", "test");
+        assertThrows(ServerResponseException.class, () -> facade.createGame(invalidAuth, game));
+
+
+        var invalidGame = new GameData(null, null, null, null, null);
+        assertThrows(ServerResponseException.class, () -> facade.createGame(auth, invalidGame));
+    }
+
 
 }
