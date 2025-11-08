@@ -60,8 +60,8 @@ public class PostloginClient implements Client {
         if (params.length == 0) {
             server.logout(currUser);
             repl.setClient(new PreloginClient(server, repl));
-//            repl.setState(ReplState.LOGGEDIN);
-//            return String.format("You registered and logged in as %s.", currUser);
+            repl.setState(ReplState.LOGGEDOUT);
+            return "You have been logged out.";
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To logout, please use the following format: Logout");

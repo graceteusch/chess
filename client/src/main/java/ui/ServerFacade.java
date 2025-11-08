@@ -44,9 +44,13 @@ public class ServerFacade {
 
     // logout
     public void logout(AuthData user) throws ServerResponseException {
-        var request = buildRequest("POST", "/session", user);
-//        var response = sendRequest(request);
-//        return handleResponse(response, AuthData.class);
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/session"))
+                .header("authorization", user.authToken())
+                .method("DELETE", HttpRequest.BodyPublishers.noBody())
+                .build();
+        var response = sendRequest(request);
+        handleResponse(response, null);
     }
 
 

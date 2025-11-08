@@ -56,7 +56,7 @@ public class ServerFacadeTests {
 
     @Test
     public void login() {
-        var user = new UserData("sage", "pass", "test@email.com");
+        var user = new UserData("test", "pass", "test@email.com");
         facade.register(user);
 
         var auth = facade.login(user);
@@ -64,4 +64,27 @@ public class ServerFacadeTests {
         assertEquals(user.username(), auth.username());
         assertNotNull(auth.authToken());
     }
+
+    @Test
+    public void logout() {
+        var user = new UserData("test", "pass", "test@email.com");
+        facade.register(user);
+
+        var auth = facade.login(user);
+
+        assertDoesNotThrow(() -> facade.logout(auth));
+    }
+
+    @Test
+    public void logoutNegative() {
+        var user = new UserData("test", "pass", "test@email.com");
+        facade.register(user);
+
+        var auth = facade.login(user);
+
+        var fakeAuth = new AuthData("fakeToken", "test");
+
+        assertThrows(ServerResponseException.class, () -> facade.logout(fakeAuth));
+    }
+
 }
