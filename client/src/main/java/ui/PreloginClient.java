@@ -7,35 +7,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class PreloginClient {
-    private ReplState state = ReplState.LOGGEDOUT;
+public class PreloginClient implements Client {
     private ServerFacade server;
     private String currUser = null;
+    private Repl repl;
 
-    public PreloginClient(String serverUrl) {
+    public PreloginClient(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
-    }
-
-    public void run() {
-        System.out.println("Welcome to Chess. Type 'Help' to get started.");
-
-        Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("Quit")) {
-            //printPrompt();
-            System.out.print("[" + state + "] >>>> ");
-            String line = scanner.nextLine();
-
-            try {
-                result = evaluate(line);
-                System.out.println(result);
-            } catch (Throwable ex) {
-                // if there input is invalid, this should be the error that is caught and message that is printed out to the user
-                var msg = ex.toString();
-                System.out.println(msg);
-            }
-        }
-        System.out.println("Goodbye :(");
+        this.repl = repl;
     }
 
     public String evaluate(String input) {
@@ -59,7 +38,9 @@ public class PreloginClient {
             var newUser = new UserData(params[0], params[1], params[2]);
             AuthData auth = server.register(newUser);
             currUser = newUser.username();
-            state = ReplState.LOGGEDIN;
+            // set the repl client to a Postlogin Client
+            repl.setClient(new PostloginClient(server, repl));
+            repl.setState(ReplState.LOGGEDIN);
             return String.format("You registered and logged in as %s.", currUser);
         }
         System.out.println("Invalid input");
@@ -73,7 +54,8 @@ public class PreloginClient {
         if (params.length == 2) {
             var user = new UserData(params[0], params[1], null);
             AuthData auth = server.login(user);
-            state = ReplState.LOGGEDIN;
+            repl.setClient(new PostloginClient(server, repl));
+            repl.setState(ReplState.LOGGEDIN);
             currUser = auth.username();
             return String.format("You logged in as %s.", currUser);
         }
@@ -82,16 +64,13 @@ public class PreloginClient {
     }
 
 
-    private String help() {
-        if (state == ReplState.LOGGEDOUT) {
-            return """
-                    Commands you can use:
-                    - Register <USERNAME> <PASSWORD> <EMAIL> - create an account!
-                    - Login - if you already registered, login to play chess!
-                    - Quit - exit chess :(
-                    - Help - list all possible commands!
-                    """;
-        }
-        return "";
+    public String help() {
+        return """
+                Commands you can use:
+                - Register <USERNAME> <PASSWORD> <EMAIL> - create an account!
+                - Login - if you already registered, login to play chess!
+                - Quit - exit chess :(
+                - Help - list all possible commands!
+                """;
     }
 }

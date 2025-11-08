@@ -1,6 +1,7 @@
 import chess.*;
 import ui.PreloginClient;
 import server.Server;
+import ui.Repl;
 
 // you will still need to start your server using the Main.main function when you manually run your client.
 public class Main {
@@ -13,10 +14,11 @@ public class Main {
 
         // run client
         String serverUrl = "http://localhost:" + port;
-        PreloginClient client = new PreloginClient(serverUrl);
-        client.run();
 
-        // step server when REPL ends
+        // create Repl object
+        new Repl(serverUrl).run();
+
+        // stop server when REPL ends
         server.stop();
         System.out.println("Server stopped.");
     }
