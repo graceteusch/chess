@@ -62,7 +62,8 @@ public class PreloginClient {
             state = ReplState.LOGGEDIN;
             return String.format("You registered and logged in as %s.", currUser);
         }
-        throw new ServerResponseException("To register, use the following format: Register <USERNAME> <PASSWORD> <EMAIL>");
+        System.out.println("Invalid input");
+        throw new ServerResponseException("To register, please use the following format: Register <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     private String login(String... params) {
@@ -73,9 +74,11 @@ public class PreloginClient {
             var user = new UserData(params[0], params[1], null);
             AuthData auth = server.login(user);
             state = ReplState.LOGGEDIN;
+            currUser = auth.username();
             return String.format("You logged in as %s.", currUser);
         }
-        throw new ServerResponseException("To log in, use the following format: Login <USERNAME> <PASSWORD>");
+        System.out.println("Invalid input");
+        throw new ServerResponseException("To log in, please use the following format: Login <USERNAME> <PASSWORD>");
     }
 
 

@@ -43,11 +43,11 @@ public class GameService {
 
         // 400: bad request
         if (name == null) {
-            throw new BadRequestException("bad request");
+            throw new BadRequestException("Invalid name. Make sure you provide a name for the game.");
         }
         // 401: unauthorized
         if (authToken == null || dataAccess.getAuth(authToken) == null) {
-            throw new UnauthorizedException("unauthorized");
+            throw new UnauthorizedException("You are not authorized to create a game.");
         }
 
         int newGameID = generateGameID();
@@ -60,22 +60,22 @@ public class GameService {
             throws BadRequestException, UnauthorizedException, AlreadyTakenException, DataAccessException {
         // 400: bad request - playerColor is NOT black/white, gameID is null, or gameID doesn't exist in the db
         if (playerColor == null) {
-            throw new BadRequestException("bad request");
+            throw new BadRequestException("Invalid color. Make sure you specify either white or black.");
         }
         if (!playerColor.equals("BLACK") && !playerColor.equals("WHITE")) {
-            throw new BadRequestException("bad request");
+            throw new BadRequestException("Invalid color. Make sure you specify either white or black.");
         }
         // 400: bad request - gameID is null or game doesn't exist in the db
         if (gameID == null || dataAccess.getGame(gameID) == null) {
-            throw new BadRequestException("bad request");
+            throw new BadRequestException("The game you requested to join does not exist.");
         }
         // 401: unauthorized
         if (authToken == null || dataAccess.getAuth(authToken) == null) {
-            throw new UnauthorizedException("unauthorized");
+            throw new UnauthorizedException("You are not authorized to join a game.");
         }
         try {
             if (isColorTaken(gameID, playerColor)) {
-                throw new AlreadyTakenException("already taken");
+                throw new AlreadyTakenException("This color is already taken by another player.");
             }
         } catch (DataAccessException ex) {
             throw new BadRequestException("bad request");
@@ -88,7 +88,7 @@ public class GameService {
 
     public Collection<GameData> listGames(String authToken) throws UnauthorizedException, DataAccessException {
         if (authToken == null || dataAccess.getAuth(authToken) == null) {
-            throw new UnauthorizedException("unauthorized");
+            throw new UnauthorizedException("You are not authorized to list games.");
         }
         Collection<GameData> allGames = dataAccess.listGames();
         return allGames;

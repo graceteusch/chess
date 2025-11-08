@@ -45,4 +45,13 @@ public class ServerFacadeTests {
         var user = new UserData(null, "pass", "test@email.com");
         assertThrows(ServerResponseException.class, () -> facade.register(user));
     }
+
+    @Test
+    public void login() {
+        var user = new UserData("sage", "pass", "test@email.com");
+        facade.register(user);
+
+        facade.login(new UserData("testUser", "wrong", ""));
+
+    }
 }

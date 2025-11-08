@@ -40,12 +40,12 @@ public class UserService {
 
         // 403: already taken
         if (dataAccess.getUser(username) != null) {
-            throw new AlreadyTakenException("already taken");
+            throw new AlreadyTakenException("This username is already taken.");
         }
 
         // 400: bad request
         if (username == null || password == null || email == null) {
-            throw new BadRequestException("bad request");
+            throw new BadRequestException("Invalid registration. Make sure you provide a valid username, password, and email.");
         }
 
         // if data is null
@@ -75,13 +75,13 @@ public class UserService {
 
         // 400: bad request
         if (username == null || password == null) {
-            throw new BadRequestException("bad request");
+            throw new BadRequestException("Invalid login. Make sure you provide a valid username and password.");
         }
 
         // find user with dataAccess
         // 401: unauthorized
         if (dataAccess.getUser(username) == null) {
-            throw new UnauthorizedException("unauthorized");
+            throw new UnauthorizedException("The username you provided doesn't exist.");
         }
 
         UserData currUser = dataAccess.getUser(username);
@@ -89,7 +89,7 @@ public class UserService {
         // check password
         // 401: unauthorized
         if (!verifyUserPassword(username, password)) {
-            throw new UnauthorizedException("unauthorized");
+            throw new UnauthorizedException("Incorrect password.");
         }
         //if (!currUser.password().equals(password)) { throw new UnauthorizedException("unauthorized");}
 
