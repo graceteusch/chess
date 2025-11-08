@@ -1,6 +1,7 @@
 package ui;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -55,9 +56,8 @@ public class ServerFacade {
         handleResponse(response, null);
     }
 
-    //    server.post("game", ctx -> createGame(ctx));
-    //    server.put("game", ctx -> joinGame(ctx));
     //    server.get("game", ctx -> listGames(ctx));
+    //    server.put("game", ctx -> joinGame(ctx));
 
 
     // createGame
@@ -71,11 +71,23 @@ public class ServerFacade {
         return (int) (double) handleResponse(response, Map.class).get("gameID");
     }
 
+    // listGames
+    public Collection<GameData> listGames(AuthData user) {
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/game"))
+                .header("authorization", user.authToken())
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+        var response = sendRequest(request);
+        // handle response (more complicated than helper function can handle right now)
+        var type = new TypeToken<Map<String, Collection<GameData>>>() {
+        }.getType();
+        Map<String, Collection<GameData>> map = new Gson().fromJson(response.body(), type);
+        return map.get("games");
+    }
+
 
     // joinGame
-
-
-    // listGames
 
 
     private HttpRequest buildRequest(String method, String path, Object body) {

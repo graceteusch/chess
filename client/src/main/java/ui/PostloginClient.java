@@ -5,11 +5,14 @@ import model.GameData;
 import model.UserData;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 public class PostloginClient implements Client {
     private ServerFacade server;
     private AuthData currUser;
     private Repl repl;
+    private Collection<GameData> lastListedGames;
 
     public PostloginClient(ServerFacade server, Repl repl, AuthData auth) {
         this.server = server;
@@ -76,7 +79,31 @@ public class PostloginClient implements Client {
     }
 
     private String listGames(String... params) {
-        return "";
+        if (params.length == 0) {
+            Collection<GameData> games = server.listGames(currUser);
+            lastListedGames = games;
+            // convert games to a string
+            if (games.isEmpty()) {
+                return "There are currently no games. Use Create <GAME NAME> to make a game.";
+            }
+            var response = "";
+            var index = 1;
+            for (GameData game : games) {
+                String whiteUsername = game.whiteUsername();
+                String blackUsername = game.blackUsername();
+                if (whiteUsername == null) {
+                    whiteUsername = "NO PLAYER";
+                }
+                if (blackUsername == null) {
+                    blackUsername = "NO PLAYER";
+                }
+                response += String.format("%d. Game Name: %s, White Player: %s, Black Player: %s %n", index++, game.gameName(), whiteUsername, blackUsername);
+
+            }
+            return "Games: " + "\n" + response;
+        }
+        System.out.println("Invalid input");
+        throw new ServerResponseException("To list games, please use the following format: List");
     }
 
     private String observeGame(String... params) {

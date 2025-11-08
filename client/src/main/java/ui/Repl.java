@@ -21,7 +21,6 @@ public class Repl {
         this.state = state;
     }
 
-
     public void run() {
         System.out.println("Welcome to Chess. Type 'Help' to get started.");
 

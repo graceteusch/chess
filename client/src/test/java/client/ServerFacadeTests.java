@@ -114,6 +114,4 @@ public class ServerFacadeTests {
         var invalidGame = new GameData(null, null, null, null, null);
         assertThrows(ServerResponseException.class, () -> facade.createGame(auth, invalidGame));
     }
-
-
 }
