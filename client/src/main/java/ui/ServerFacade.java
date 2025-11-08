@@ -43,6 +43,11 @@ public class ServerFacade {
     }
 
     // logout
+    public void logout(AuthData user) throws ServerResponseException {
+        var request = buildRequest("POST", "/session", user);
+//        var response = sendRequest(request);
+//        return handleResponse(response, AuthData.class);
+    }
 
 
     // createGame

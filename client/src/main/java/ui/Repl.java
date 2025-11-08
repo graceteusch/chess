@@ -3,12 +3,14 @@ package ui;
 import java.util.Scanner;
 
 public class Repl {
+    private ServerFacade server;
     private ReplState state;
     private Client client;
 
     public Repl(String serverUrl) {
+        this.server = new ServerFacade(serverUrl);
         this.state = ReplState.LOGGEDOUT;
-        this.client = new PreloginClient(serverUrl, this);
+        this.client = new PreloginClient(server, this);
     }
 
     public void setClient(Client client) {

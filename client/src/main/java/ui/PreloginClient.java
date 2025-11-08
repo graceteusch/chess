@@ -9,11 +9,11 @@ import java.util.Scanner;
 
 public class PreloginClient implements Client {
     private ServerFacade server;
-    private String currUser = null;
+    private AuthData currUser = null;
     private Repl repl;
 
-    public PreloginClient(String serverUrl, Repl repl) {
-        server = new ServerFacade(serverUrl);
+    public PreloginClient(ServerFacade server, Repl repl) {
+        this.server = server;
         this.repl = repl;
     }
 
@@ -36,12 +36,11 @@ public class PreloginClient implements Client {
     private String register(String... params) throws Exception {
         if (params.length == 3) {
             var newUser = new UserData(params[0], params[1], params[2]);
-            AuthData auth = server.register(newUser);
-            currUser = newUser.username();
+            currUser = server.register(newUser);
             // set the repl client to a Postlogin Client
-            repl.setClient(new PostloginClient(server, repl));
+            repl.setClient(new PostloginClient(server, repl, currUser));
             repl.setState(ReplState.LOGGEDIN);
-            return String.format("You registered and logged in as %s.", currUser);
+            return String.format("You registered and logged in as %s.", currUser.username());
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To register, please use the following format: Register <USERNAME> <PASSWORD> <EMAIL>");
@@ -53,11 +52,10 @@ public class PreloginClient implements Client {
         // When successfully logged in, the client should transition to the Postlogin UI.
         if (params.length == 2) {
             var user = new UserData(params[0], params[1], null);
-            AuthData auth = server.login(user);
-            repl.setClient(new PostloginClient(server, repl));
+            currUser = server.login(user);
+            repl.setClient(new PostloginClient(server, repl, currUser));
             repl.setState(ReplState.LOGGEDIN);
-            currUser = auth.username();
-            return String.format("You logged in as %s.", currUser);
+            return String.format("You logged in as %s.", currUser.username());
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To log in, please use the following format: Login <USERNAME> <PASSWORD>");

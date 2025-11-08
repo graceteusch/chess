@@ -1,5 +1,8 @@
 package client;
 
+import dataaccess.DataAccessException;
+import dataaccess.SqlDataAccess;
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -29,6 +32,11 @@ public class ServerFacadeTests {
         server.stop();
     }
 
+    @BeforeEach
+    public void clearDB() {
+        facade.clear();
+    }
+
 
     @Test
     public void register() {
@@ -51,7 +59,9 @@ public class ServerFacadeTests {
         var user = new UserData("sage", "pass", "test@email.com");
         facade.register(user);
 
-        facade.login(new UserData("testUser", "wrong", ""));
-
+        var auth = facade.login(user);
+        assertNotNull(auth);
+        assertEquals(user.username(), auth.username());
+        assertNotNull(auth.authToken());
     }
 }
