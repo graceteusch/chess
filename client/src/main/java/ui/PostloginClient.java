@@ -133,6 +133,9 @@ public class PostloginClient implements Client {
             // call the server facade join/play game function
             server.joinGame(actualID, color, currUser);
 
+            // TODO: write helper function to draw the actual board
+            System.out.println("INITIAL BOARD STATE GOES HERE");
+
             // give: playerColor and gameID
             // get back: nothing?? —> should it give back a game object?
             return String.format("You successfully joined game #%d as the %s player.", gameNum, color);
