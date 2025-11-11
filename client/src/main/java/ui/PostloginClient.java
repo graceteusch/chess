@@ -96,10 +96,6 @@ public class PostloginClient implements Client {
         throw new ServerResponseException("To list games, please use the following format: List");
     }
 
-    private String observeGame(String... params) {
-        return "";
-    }
-
     private String playGame(String... params) {
         if (lastListedGames == null) {
             throw new ServerResponseException("Before joining a game, please use the 'List' command to see available games and their numbers");
@@ -142,6 +138,34 @@ public class PostloginClient implements Client {
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To join a game, please use the following format: Join <GAME NUMBER> <TEAM COLOR - WHITE or BLACK>");
+    }
+
+    private String observeGame(String... params) {
+        if (lastListedGames == null) {
+            throw new ServerResponseException("Before joining a game, please use the 'List' command to see available games and their numbers");
+        }
+        if (lastListedGames.isEmpty()) {
+            throw new ServerResponseException("There are currently no games. Please use the 'Create <GAME NAME>' command to make a new game.");
+        }
+        if (params.length == 1) {
+            String gameNumber = params[0];
+            int gameNum;
+            try {
+                gameNum = parseInt(gameNumber);
+            } catch (NumberFormatException ex) {
+                System.out.println("Invalid input");
+                throw new ServerResponseException("Please make sure the <GAME NUMBER> is a number (1, 15, etc.)");
+            }
+            if (gameNum < 1 || gameNum > lastListedGames.size()) {
+                throw new ServerResponseException("Please make sure the <GAME NUMBER> is a current valid game. To see available games and their numbers, use 'list'.");
+            }
+
+            // TODO: write helper function to draw the actual board
+            System.out.println("INITIAL BOARD STATE GOES HERE");
+            return String.format("You are now observing game #%d.", gameNum);
+        }
+        System.out.println("Invalid input");
+        throw new ServerResponseException("To observe a game, please use the following format: Observe <GAME NUMBER>");
     }
 
     @Override
