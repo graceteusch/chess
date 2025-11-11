@@ -101,6 +101,12 @@ public class PostloginClient implements Client {
     }
 
     private String playGame(String... params) {
+        if (lastListedGames == null) {
+            throw new ServerResponseException("Before joining a game, please use the 'List' command to see available games and their numbers");
+        }
+        if (lastListedGames.isEmpty()) {
+            throw new ServerResponseException("There are currently no games. Please use the 'Create <GAME NAME>' command to make a new game.");
+        }
         if (params.length == 2) {
             String gameNumber = params[0];
             String color = params[1];
