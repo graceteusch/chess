@@ -6,6 +6,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import server.Server;
+import service.JoinGameRequest;
 
 import java.io.IOException;
 import java.net.URI;
@@ -87,7 +88,18 @@ public class ServerFacade {
     }
 
 
-    // joinGame
+    public void joinGame(int gameNum, String color, AuthData user) {
+        // header = auth token
+        // body = playerColor, gameID
+        var joinRequest = new JoinGameRequest(color, gameNum);
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/game"))
+                .header("authorization", user.authToken())
+                .method("PUT", makeRequestBody(joinRequest))
+                .build();
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
 
 
     private HttpRequest buildRequest(String method, String path, Object body) {
@@ -138,5 +150,6 @@ public class ServerFacade {
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
     }
+
 }
 

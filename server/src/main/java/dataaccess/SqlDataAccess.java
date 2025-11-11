@@ -45,7 +45,7 @@ public class SqlDataAccess implements DataAccessObject {
             // game data table
             """
             CREATE TABLE IF NOT EXISTS  gamedata (
-              `gameID` int NOT NULL,
+              `gameID` INTEGER NOT NULL,
               `whiteUsername` varchar(256),
               `blackUsername` varchar(256),
               `gameName` varchar(256),
@@ -211,7 +211,7 @@ public class SqlDataAccess implements DataAccessObject {
         var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM gamedata WHERE gameID = ?";
         try (Connection conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.setString(1, gameID + "");
+                preparedStatement.setInt(1, gameID);
                 try (var resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
                         return readGameData(resultSet);
@@ -261,10 +261,10 @@ public class SqlDataAccess implements DataAccessObject {
         if (game == null) { // just joining a game
             // find the game at gameID, set the corresponding username value to the given username
             var statement = "";
-            if (playerColor.equals("WHITE")) {
+            if (playerColor.equalsIgnoreCase("WHITE")) {
                 statement = "UPDATE gamedata SET whiteUsername = ? WHERE gameID = ?";
                 executeUpdate(statement, username, gameID);
-            } else if (playerColor.equals("BLACK")) {
+            } else if (playerColor.equalsIgnoreCase("BLACK")) {
                 statement = "UPDATE gamedata SET blackUsername = ? WHERE gameID = ?";
                 executeUpdate(statement, username, gameID);
             } else { // throw an error if the player color doesn't match?

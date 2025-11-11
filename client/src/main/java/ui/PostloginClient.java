@@ -1,18 +1,24 @@
 package ui;
 
+import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import service.JoinGameRequest;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+
+import static java.lang.Integer.parseInt;
 
 public class PostloginClient implements Client {
     private ServerFacade server;
     private AuthData currUser;
     private Repl repl;
-    private Collection<GameData> lastListedGames;
+    private ArrayList<GameData> lastListedGames;
 
     public PostloginClient(ServerFacade server, Repl repl, AuthData auth) {
         this.server = server;
@@ -30,7 +36,7 @@ public class PostloginClient implements Client {
                 case "logout" -> logout(params);
                 case "create" -> createGame(params);
                 case "list" -> listGames(params);
-                case "play" -> playGame(params);
+                case "join" -> playGame(params);
                 case "observe" -> observeGame(params);
                 case "quit" -> "Quit";
                 default -> help();
@@ -39,22 +45,6 @@ public class PostloginClient implements Client {
             return ex.getMessage();
         }
     }
-
-
-    //    private String register(String... params) throws Exception {
-//        if (params.length == 3) {
-//            var newUser = new UserData(params[0], params[1], params[2]);
-//            AuthData auth = server.register(newUser);
-//            currUser = newUser.username();
-//            // set the repl client to a Postlogin Client
-//            repl.setClient(new PostloginClient(server, repl));
-//            repl.setState(ReplState.LOGGEDIN);
-//            return String.format("You registered and logged in as %s.", currUser);
-//        }
-//        System.out.println("Invalid input");
-//        throw new ServerResponseException("To register, please use the following format: Register <USERNAME> <PASSWORD> <EMAIL>");
-//    }
-
 
     private String logout(String... params) {
         if (params.length == 0) {
@@ -81,7 +71,7 @@ public class PostloginClient implements Client {
     private String listGames(String... params) {
         if (params.length == 0) {
             Collection<GameData> games = server.listGames(currUser);
-            lastListedGames = games;
+            lastListedGames = new ArrayList<>(games);
             // convert games to a string
             if (games.isEmpty()) {
                 return "There are currently no games. Use Create <GAME NAME> to make a game.";
@@ -111,7 +101,38 @@ public class PostloginClient implements Client {
     }
 
     private String playGame(String... params) {
-        return "";
+        if (params.length == 2) {
+            String gameNumber = params[0];
+            String color = params[1];
+            int gameNum;
+            try {
+                gameNum = parseInt(gameNumber);
+            } catch (NumberFormatException ex) {
+                System.out.println("Invalid input");
+                throw new ServerResponseException("Please make sure the <GAME NUMBER> is a number (1, 15, etc.)");
+            }
+            if (gameNum < 1 || gameNum > lastListedGames.size()) {
+                throw new ServerResponseException("Please make sure the <GAME NUMBER> is a current valid game. To see available games and their numbers, use 'list'.");
+            }
+            // save the user color - if it isn't BLACK or WHITE, return invalid input
+            if (!color.equalsIgnoreCase("BLACK") && !color.equalsIgnoreCase("WHITE")) {
+                throw new ServerResponseException("Please make sure the <TEAM COLOR> is either WHITE or BLACK.");
+            }
+
+            // get the correct/corresponding game from the lastListedGames list
+            GameData joiningGame = lastListedGames.get(gameNum - 1);
+            // get that game's actual gameID (not just the list number)
+            int actualID = joiningGame.gameID();
+
+            // call the server facade join/play game function
+            server.joinGame(actualID, color, currUser);
+
+            // give: playerColor and gameID
+            // get back: nothing?? —> should it give back a game object?
+            return String.format("You successfully joined game #%d as the %s player.", gameNum, color);
+        }
+        System.out.println("Invalid input");
+        throw new ServerResponseException("To join a game, please use the following format: Join <GAME NUMBER> <TEAM COLOR - WHITE or BLACK>");
     }
 
     @Override

@@ -69,8 +69,7 @@ public class Server {
             String authToken = ctx.header("authorization");
             String requestJson = ctx.body();
             JoinGameRequest game = serializer.fromJson(requestJson, JoinGameRequest.class);
-
-
+            //System.out.println(game.gameID());
             gameService.joinGame(authToken, game.playerColor(), game.gameID());
 
             ctx.status(200).result(serializer.toJson(Map.of()));

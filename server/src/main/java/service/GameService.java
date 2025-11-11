@@ -24,9 +24,9 @@ public class GameService {
     private boolean isColorTaken(int gameID, String playerColor) throws DataAccessException {
         var game = dataAccess.getGame(gameID);
         if (game != null) {
-            if (playerColor.equals("WHITE") && game.whiteUsername() != null) {
+            if (playerColor.equalsIgnoreCase("WHITE") && game.whiteUsername() != null) {
                 return true;
-            } else if (playerColor.equals("BLACK") && game.blackUsername() != null) {
+            } else if (playerColor.equalsIgnoreCase("BLACK") && game.blackUsername() != null) {
                 return true;
             }
         }
@@ -62,7 +62,7 @@ public class GameService {
         if (playerColor == null) {
             throw new BadRequestException("Invalid color. Make sure you specify either white or black.");
         }
-        if (!playerColor.equals("BLACK") && !playerColor.equals("WHITE")) {
+        if (!playerColor.equalsIgnoreCase("BLACK") && !playerColor.equalsIgnoreCase("WHITE")) {
             throw new BadRequestException("Invalid color. Make sure you specify either white or black.");
         }
         // 400: bad request - gameID is null or game doesn't exist in the db
