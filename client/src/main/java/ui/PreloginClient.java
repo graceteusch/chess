@@ -3,9 +3,9 @@ package ui;
 import model.AuthData;
 import model.UserData;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
+
 
 public class PreloginClient implements Client {
     private ServerFacade server;
@@ -40,7 +40,8 @@ public class PreloginClient implements Client {
             // set the repl client to a Postlogin Client
             repl.setClient(new PostloginClient(server, repl, currUser));
             repl.setState(ReplState.LOGGEDIN);
-            return String.format("You registered and logged in as %s.", currUser.username());
+
+            return String.format("You registered and logged in as %s. Type 'Help' to see what commands you can now use.", currUser.username());
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To register, please use the following format: Register <USERNAME> <PASSWORD> <EMAIL>");
@@ -55,7 +56,7 @@ public class PreloginClient implements Client {
             currUser = server.login(user);
             repl.setClient(new PostloginClient(server, repl, currUser));
             repl.setState(ReplState.LOGGEDIN);
-            return String.format("You logged in as %s.", currUser.username());
+            return String.format("You logged in as %s. Type 'Help' to see what commands you can now use.", currUser.username());
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To log in, please use the following format: Login <USERNAME> <PASSWORD>");

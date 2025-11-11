@@ -2,6 +2,8 @@ package ui;
 
 import java.util.Scanner;
 
+import static ui.EscapeSequences.*;
+
 public class Repl {
     private ServerFacade server;
     private ReplState state;
@@ -22,14 +24,16 @@ public class Repl {
     }
 
     public void run() {
-        System.out.println("Welcome to Chess. Type 'Help' to get started.");
+        System.out.println(SET_TEXT_COLOR_MAGENTA + "Welcome to Chess. Type 'Help' to get started.");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("Quit")) {
             //printPrompt();
+            System.out.print(SET_TEXT_COLOR_MAGENTA);
             System.out.print("[" + state + "] >>>> ");
             String line = scanner.nextLine();
+            System.out.print(SET_TEXT_COLOR_BLUE);
             try {
                 result = client.evaluate(line);
                 System.out.println(result);
@@ -39,7 +43,7 @@ public class Repl {
                 System.out.println(msg);
             }
         }
-        System.out.println("Goodbye :(");
+        System.out.println(SET_TEXT_COLOR_BLUE + "Goodbye :(");
     }
 }
 

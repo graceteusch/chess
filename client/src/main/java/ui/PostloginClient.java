@@ -1,11 +1,15 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import service.JoinGameRequest;
 
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,10 +86,10 @@ public class PostloginClient implements Client {
                 String whiteUsername = game.whiteUsername();
                 String blackUsername = game.blackUsername();
                 if (whiteUsername == null) {
-                    whiteUsername = "NO PLAYER";
+                    whiteUsername = "________";
                 }
                 if (blackUsername == null) {
-                    blackUsername = "NO PLAYER";
+                    blackUsername = "________";
                 }
                 response += String.format("%d. Game Name: %s, White Player: %s, Black Player: %s %n", index++, game.gameName(), whiteUsername, blackUsername);
 
@@ -129,12 +133,12 @@ public class PostloginClient implements Client {
             // call the server facade join/play game function
             server.joinGame(actualID, color, currUser);
 
-            // TODO: write helper function to draw the actual board
-            System.out.println("INITIAL BOARD STATE GOES HERE");
-
             // give: playerColor and gameID
             // get back: nothing?? —> should it give back a game object?
-            return String.format("You successfully joined game #%d as the %s player.", gameNum, color);
+            System.out.printf("You successfully joined game #%d as the %s player.%n", gameNum, color);
+
+            // TODO: write helper function to draw the actual board
+            return "INITIAL BOARD STATE GOES HERE";
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To join a game, please use the following format: Join <GAME NUMBER> <TEAM COLOR - WHITE or BLACK>");
@@ -160,9 +164,12 @@ public class PostloginClient implements Client {
                 throw new ServerResponseException("Please make sure the <GAME NUMBER> is a current valid game. To see available games and their numbers, use 'list'.");
             }
 
+            System.out.printf("You are now observing game #%d.%n", gameNum);
             // TODO: write helper function to draw the actual board
-            System.out.println("INITIAL BOARD STATE GOES HERE");
-            return String.format("You are now observing game #%d.", gameNum);
+            var game = new ChessGame();
+            BoardDrawer.drawBoard(game.getBoard());
+            return "INITIAL BOARD STATE GOES HERE";
+
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To observe a game, please use the following format: Observe <GAME NUMBER>");
