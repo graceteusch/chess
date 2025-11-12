@@ -139,7 +139,7 @@ public class PostloginClient implements Client {
 
             // TODO: write helper function to draw the actual board
             var game = new ChessGame();
-            BoardDrawer.drawBoard(game.getBoard());
+            BoardDrawer.drawBoard(game.getBoard(), color);
             return "";
         }
         System.out.println("Invalid input");
@@ -169,7 +169,7 @@ public class PostloginClient implements Client {
             System.out.printf("You are now observing game #%d.%n", gameNum);
             // TODO: write helper function to draw the actual board
             var game = new ChessGame();
-            BoardDrawer.drawBoard(game.getBoard());
+            BoardDrawer.drawBoard(game.getBoard(), "WHITE");
             return "";
 
         }

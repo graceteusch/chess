@@ -13,8 +13,23 @@ import static ui.EscapeSequences.*;
 
 public class BoardDrawer {
 
-    public static void drawBoard(ChessBoard board) {
+    public static void drawBoard(ChessBoard board, String team) {
+        ChessGame.TeamColor currTeam;
+        if (team.equalsIgnoreCase("WHITE")) {
+            currTeam = ChessGame.TeamColor.WHITE;
+        } else {
+            currTeam = ChessGame.TeamColor.BLACK;
+        }
+
         System.out.print(ERASE_SCREEN);
+        if (currTeam.equals(ChessGame.TeamColor.WHITE)) {
+            drawWhitePerspective(board);
+        } else {
+            drawBlackPerspective(board);
+        }
+    }
+
+    private static void drawWhitePerspective(ChessBoard board) {
         System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
         System.out.println("   a  b  c  d  e  f  g  h  ");
         for (int i = 8; i >= 1; i--) {
@@ -39,6 +54,33 @@ public class BoardDrawer {
         }
         System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
         System.out.println("  a  b  c  d  e  f  g  h  ");
+    }
+
+    private static void drawBlackPerspective(ChessBoard board) {
+        System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
+        System.out.println("   h  g  f  e  d  c  b  a  ");
+        for (int i = 1; i <= 8; i++) {
+            System.out.print(RESET_BG_COLOR);
+            System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
+
+            System.out.print(i + " ");
+            for (int j = 1; j <= 8; j++) {
+                boolean isLightSquare = (i + j) % 2 == 0;
+                if (isLightSquare) {
+                    System.out.print(SET_BG_COLOR_LIGHT_BLUE);
+                    var pieceSymbol = getUnicodeSymbol(board.getPiece(new ChessPosition(i, j)));
+                    System.out.print(pieceSymbol);
+                } else {
+                    System.out.print(SET_BG_COLOR_DARK_BLUE);
+                    var pieceSymbol = getUnicodeSymbol(board.getPiece(new ChessPosition(i, j)));
+                    System.out.print(pieceSymbol);
+                }
+                System.out.print(RESET_BG_COLOR);
+            }
+            System.out.println();
+        }
+        System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
+        System.out.println("   h  g  f  e  d  c  b  a  ");
     }
 
     private static String getUnicodeSymbol(ChessPiece piece) {

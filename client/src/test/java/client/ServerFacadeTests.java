@@ -179,5 +179,4 @@ public class ServerFacadeTests {
         assertThrows(ServerResponseException.class, () -> facade.joinGame(1, "WHITE", auth));
     }
 
-
 }
