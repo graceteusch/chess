@@ -1,4 +1,5 @@
 import chess.*;
+import ui.BoardDrawer;
 import ui.PreloginClient;
 import server.Server;
 import ui.Repl;

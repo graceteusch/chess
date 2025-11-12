@@ -138,7 +138,9 @@ public class PostloginClient implements Client {
             System.out.printf("You successfully joined game #%d as the %s player.%n", gameNum, color);
 
             // TODO: write helper function to draw the actual board
-            return "INITIAL BOARD STATE GOES HERE";
+            var game = new ChessGame();
+            BoardDrawer.drawBoard(game.getBoard());
+            return "";
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To join a game, please use the following format: Join <GAME NUMBER> <TEAM COLOR - WHITE or BLACK>");
@@ -168,7 +170,7 @@ public class PostloginClient implements Client {
             // TODO: write helper function to draw the actual board
             var game = new ChessGame();
             BoardDrawer.drawBoard(game.getBoard());
-            return "INITIAL BOARD STATE GOES HERE";
+            return "";
 
         }
         System.out.println("Invalid input");

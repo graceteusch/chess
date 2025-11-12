@@ -15,16 +15,29 @@ public class BoardDrawer {
 
     public static void drawBoard(ChessBoard board) {
         System.out.print(ERASE_SCREEN);
-        System.out.println("  a  b  c  d  e  f  g  h  ");
+        System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
+        System.out.println("   a  b  c  d  e  f  g  h  ");
         for (int i = 8; i >= 1; i--) {
-            System.out.print(i);
-            for (int j = 1; j <= 8; j++) {
-                var pieceSymbol = getUnicodeSymbol(board.getPiece(new ChessPosition(i, j)));
-                System.out.print(pieceSymbol);
+            System.out.print(RESET_BG_COLOR);
+            System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
 
+            System.out.print(i + " ");
+            for (int j = 1; j <= 8; j++) {
+                boolean isLightSquare = (i + j) % 2 != 0;
+                if (isLightSquare) {
+                    System.out.print(SET_BG_COLOR_LIGHT_BLUE);
+                    var pieceSymbol = getUnicodeSymbol(board.getPiece(new ChessPosition(i, j)));
+                    System.out.print(pieceSymbol);
+                } else {
+                    System.out.print(SET_BG_COLOR_DARK_BLUE);
+                    var pieceSymbol = getUnicodeSymbol(board.getPiece(new ChessPosition(i, j)));
+                    System.out.print(pieceSymbol);
+                }
+                System.out.print(RESET_BG_COLOR);
             }
             System.out.println();
         }
+        System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
         System.out.println("  a  b  c  d  e  f  g  h  ");
     }
 
