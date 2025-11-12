@@ -154,5 +154,30 @@ public class ServerFacadeTests {
         assertTrue(games.isEmpty());
     }
 
+    @Test
+    public void joinGame() {
+        var user = new UserData("test", "pass", "test@email.com");
+        facade.register(user);
+        var auth = facade.login(user);
+
+        var game = new GameData(null, null, null, "testGame", null);
+        var gameID = facade.createGame(auth, game);
+
+        // joinGame(int gameNum, String color, AuthData user)
+        assertDoesNotThrow(() -> facade.joinGame(gameID, "WHITE", auth));
+    }
+
+    @Test
+    public void joinGameNegative() {
+        var user = new UserData("test", "pass", "test@email.com");
+        facade.register(user);
+        var auth = facade.login(user);
+
+        var nonexistentGame = 1;
+
+        // joinGame(int gameNum, String color, AuthData user)
+        assertThrows(ServerResponseException.class, () -> facade.joinGame(1, "WHITE", auth));
+    }
+
 
 }
