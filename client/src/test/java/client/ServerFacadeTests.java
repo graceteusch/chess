@@ -10,6 +10,8 @@ import server.Server;
 import ui.ServerFacade;
 import ui.ServerResponseException;
 
+import java.util.Collection;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -67,6 +69,14 @@ public class ServerFacadeTests {
     }
 
     // TODO: write negative login test!
+    @Test
+    public void loginNegative() {
+        var user = new UserData("test", "pass", "test@email.com");
+        facade.register(user);
+
+        var fakeUser = new UserData("test", "incorrect", "test@email.com");
+        assertThrows(ServerResponseException.class, () -> facade.login(fakeUser));
+    }
 
     @Test
     public void logout() {
@@ -98,7 +108,7 @@ public class ServerFacadeTests {
 
         var game = new GameData(null, null, null, "testGame", null);
 
-        int gameID = facade.createGame(auth, game);
+        var gameID = facade.createGame(auth, game);
         assertNotNull(gameID);
     }
 
@@ -117,7 +127,38 @@ public class ServerFacadeTests {
         assertThrows(ServerResponseException.class, () -> facade.createGame(auth, invalidGame));
     }
 
-    // TODO: write unit tests for createGame, listGames, joinGame
+    // TODO: write unit tests for listGames, joinGame, observeGame
+    @Test
+    public void listGames() {
+        var user = new UserData("test", "pass", "test@email.com");
+        facade.register(user);
+        var auth = facade.login(user);
 
-    
+        var game = new GameData(null, null, null, "testGame", null);
+        var game2 = new GameData(null, null, null, "testGame2", null);
+        facade.createGame(auth, game);
+        facade.createGame(auth, game2);
+
+        Collection<GameData> games = facade.listGames(auth);
+        assertNotNull(games);
+        assertEquals(2, games.size());
+    }
+
+    @Test
+    public void listGamesNegative() {
+        var user = new UserData("test", "pass", "test@email.com");
+        facade.register(user);
+        var auth = facade.login(user);
+
+        var game = new GameData(null, null, null, "testGame", null);
+        var game2 = new GameData(null, null, null, "testGame2", null);
+        facade.createGame(auth, game);
+        facade.createGame(auth, game2);
+
+        Collection<GameData> games = facade.listGames(auth);
+        assertNotNull(games);
+        assertEquals(2, games.size());
+    }
+
+
 }
