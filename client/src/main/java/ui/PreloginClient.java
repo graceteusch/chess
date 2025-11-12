@@ -42,7 +42,7 @@ public class PreloginClient implements Client {
             if (params[1].equals("null")) {
                 return "You cannot use 'null' as a password. Please try a different password.";
             }
-            if (params[3].equals("null")) {
+            if (params[2].equals("null")) {
                 return "You cannot use 'null' as an email. Please try a different email.";
             }
             currUser = server.register(newUser);
