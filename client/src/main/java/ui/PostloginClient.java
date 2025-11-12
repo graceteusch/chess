@@ -1,20 +1,12 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
-import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
-import model.UserData;
-import service.JoinGameRequest;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 
 import static java.lang.Integer.parseInt;
 

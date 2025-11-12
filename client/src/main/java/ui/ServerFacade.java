@@ -5,10 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import server.Server;
-import service.JoinGameRequest;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -91,11 +88,11 @@ public class ServerFacade {
     public void joinGame(int gameNum, String color, AuthData user) {
         // header = auth token
         // body = playerColor, gameID
-        var joinRequest = new JoinGameRequest(color, gameNum);
+        var joinReq = Map.of("playerColor", color, "gameID", gameNum);
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + "/game"))
                 .header("authorization", user.authToken())
-                .method("PUT", makeRequestBody(joinRequest))
+                .method("PUT", makeRequestBody(joinReq))
                 .build();
         var response = sendRequest(request);
         handleResponse(response, null);
