@@ -1,6 +1,4 @@
 import chess.*;
-import ui.BoardDrawer;
-import ui.PreloginClient;
 import server.Server;
 import ui.Repl;
 
@@ -9,18 +7,20 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("♕ 240 Chess Client");
 
-        // start server
-        Server server = new Server();
-        int port = server.run(0);
 
-        // run client
-        String serverUrl = "http://localhost:" + port;
+//        // start server
+//        Server server = new Server();
+//        int port = server.run(0);
+//
+//        // run client
+//        String serverUrl = "http://localhost:" + port;
+//
 
-        // create Repl object
+
+        String serverUrl = "http://localhost:8080";
+
+        // create Repl object and run it
         new Repl(serverUrl).run();
 
-        // stop server when REPL ends
-        server.stop();
-        System.out.println("Server stopped.");
     }
 }
