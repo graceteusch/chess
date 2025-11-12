@@ -1,5 +1,4 @@
 import chess.*;
-import server.Server;
 import ui.Repl;
 
 // you will still need to start your server using the Main.main function when you manually run your client.
