@@ -83,7 +83,8 @@ public class PostloginClient implements Client {
                 if (blackUsername == null) {
                     blackUsername = "________";
                 }
-                response += String.format("%d. Game Name: %s, White Player: %s, Black Player: %s %n", index++, game.gameName(), whiteUsername, blackUsername);
+                response += String.format("%d. Game Name: %s, White Player: %s, Black Player: %s %n",
+                        index++, game.gameName(), whiteUsername, blackUsername);
 
             }
             return "Games: " + "\n" + response;
@@ -110,7 +111,8 @@ public class PostloginClient implements Client {
                 throw new ServerResponseException("Please make sure the <GAME NUMBER> is a number (1, 15, etc.)");
             }
             if (gameNum < 1 || gameNum > lastListedGames.size()) {
-                throw new ServerResponseException("Please make sure the <GAME NUMBER> is a current valid game. To see available games and their numbers, use 'list'.");
+                throw new ServerResponseException("Please make sure the <GAME NUMBER> is a current valid game." +
+                        "To see available games and their numbers, use 'list'.");
             }
             // save the user color - if it isn't BLACK or WHITE, return invalid input
             if (!color.equalsIgnoreCase("BLACK") && !color.equalsIgnoreCase("WHITE")) {
@@ -129,7 +131,6 @@ public class PostloginClient implements Client {
             // get back: nothing?? —> should it give back a game object?
             System.out.printf("You successfully joined game #%d as the %s player.%n", gameNum, color);
 
-            // TODO: write helper function to draw the actual board
             var game = new ChessGame();
             BoardDrawer.drawBoard(game.getBoard(), color);
             return "";
@@ -155,11 +156,11 @@ public class PostloginClient implements Client {
                 throw new ServerResponseException("Please make sure the <GAME NUMBER> is a number (1, 15, etc.)");
             }
             if (gameNum < 1 || gameNum > lastListedGames.size()) {
-                throw new ServerResponseException("Please make sure the <GAME NUMBER> is a current valid game. To see available games and their numbers, use 'list'.");
+                throw new ServerResponseException("Please make sure the <GAME NUMBER> is a current valid game." +
+                        "To see available games and their numbers, use 'list'.");
             }
 
             System.out.printf("You are now observing game #%d.%n", gameNum);
-            // TODO: write helper function to draw the actual board
             var game = new ChessGame();
             BoardDrawer.drawBoard(game.getBoard(), "WHITE");
             return "";

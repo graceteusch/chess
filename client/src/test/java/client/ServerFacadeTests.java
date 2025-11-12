@@ -68,7 +68,6 @@ public class ServerFacadeTests {
         assertNotNull(auth.authToken());
     }
 
-    // TODO: write negative login test!
     @Test
     public void loginNegative() {
         var user = new UserData("test", "pass", "test@email.com");
@@ -127,7 +126,6 @@ public class ServerFacadeTests {
         assertThrows(ServerResponseException.class, () -> facade.createGame(auth, invalidGame));
     }
 
-    // TODO: write unit tests for listGames, joinGame, observeGame
     @Test
     public void listGames() {
         var user = new UserData("test", "pass", "test@email.com");
