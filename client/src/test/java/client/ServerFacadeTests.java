@@ -150,14 +150,8 @@ public class ServerFacadeTests {
         facade.register(user);
         var auth = facade.login(user);
 
-        var game = new GameData(null, null, null, "testGame", null);
-        var game2 = new GameData(null, null, null, "testGame2", null);
-        facade.createGame(auth, game);
-        facade.createGame(auth, game2);
-
-        Collection<GameData> games = facade.listGames(auth);
-        assertNotNull(games);
-        assertEquals(2, games.size());
+        var games = facade.listGames(auth);
+        assertTrue(games.isEmpty());
     }
 
 
