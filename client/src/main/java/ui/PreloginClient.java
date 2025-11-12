@@ -36,6 +36,15 @@ public class PreloginClient implements Client {
     private String register(String... params) throws Exception {
         if (params.length == 3) {
             var newUser = new UserData(params[0], params[1], params[2]);
+            if (params[0].equals("null")) {
+                return "You cannot use 'null' as a username. Please try a different username.";
+            }
+            if (params[1].equals("null")) {
+                return "You cannot use 'null' as a password. Please try a different password.";
+            }
+            if (params[3].equals("null")) {
+                return "You cannot use 'null' as an email. Please try a different email.";
+            }
             currUser = server.register(newUser);
             // set the repl client to a Postlogin Client
             repl.setClient(new PostloginClient(server, repl, currUser));

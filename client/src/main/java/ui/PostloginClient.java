@@ -56,6 +56,9 @@ public class PostloginClient implements Client {
     private String createGame(String... params) {
         if (params.length == 1) {
             String name = params[0];
+            if (name.equals("null")) {
+                return "You cannot use 'null' as a game name. Please try a different name.";
+            }
             var newGame = new GameData(null, null, null, name, null);
             server.createGame(currUser, newGame);
             return String.format("You created a chess game named %s.", name);
