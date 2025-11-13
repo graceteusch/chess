@@ -114,7 +114,7 @@ public class PostloginClient implements Client {
                 throw new ServerResponseException("Please make sure the <GAME NUMBER> is a number (1, 15, etc.)");
             }
             if (gameNum < 1 || gameNum > lastListedGames.size()) {
-                throw new ServerResponseException("Please make sure the <GAME NUMBER> is a current valid game." +
+                throw new ServerResponseException("Please make sure the <GAME NUMBER> is a current valid game. " +
                         "To see available games and their numbers, use 'list'.");
             }
             // save the user color - if it isn't BLACK or WHITE, return invalid input
@@ -160,7 +160,7 @@ public class PostloginClient implements Client {
             }
             if (gameNum < 1 || gameNum > lastListedGames.size()) {
                 throw new ServerResponseException("Please make sure the <GAME NUMBER> is a current valid game." +
-                        "To see available games and their numbers, use 'list'.");
+                        " To see available games and their numbers, use 'list'.");
             }
 
             System.out.printf("You are now observing game #%d.%n", gameNum);
