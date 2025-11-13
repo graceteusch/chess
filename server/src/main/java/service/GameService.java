@@ -18,6 +18,11 @@ public class GameService {
         while (dataAccess.getGame(randomID) != null) {
             randomID = random.nextInt();
         }
+        if (randomID <= 0) {
+            while (randomID <= 0) {
+                randomID = random.nextInt();
+            }
+        }
         return randomID;
     }
 
