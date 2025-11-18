@@ -123,8 +123,6 @@ public class ServerFacade {
         } catch (Exception ex) {
             throw new ServerResponseException(500, ex.getMessage());
         }
-
-
     }
 
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) {
@@ -140,7 +138,6 @@ public class ServerFacade {
         if (responseClass != null) {
             return new Gson().fromJson(response.body(), responseClass);
         }
-
         return null;
     }
 

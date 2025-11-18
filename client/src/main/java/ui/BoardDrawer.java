@@ -61,7 +61,7 @@ public class BoardDrawer {
 
             System.out.print(i + " ");
             for (int j = 8; j >= 1; j--) {
-                boolean isLightSquare = (i + j) % 2 == 0;
+                boolean isLightSquare = (i + j) % 2 != 0;
                 if (isLightSquare) {
                     System.out.print(SET_BG_COLOR_LIGHT_BLUE);
                     var pieceSymbol = getUnicodeSymbol(board.getPiece(new ChessPosition(i, j)));
