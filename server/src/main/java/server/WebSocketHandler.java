@@ -38,19 +38,35 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
 
-    // TODO: implement methods for the different message cases (endpoints?)
+    // TODO: implement methods for the different message cases
 
-    private void connect(String authToken, Integer gameID, Session session) {
+    private void connect(String authToken, Integer gameID, Session session) throws IOException {
+        // server received a CONNECT message from the client
+        // TODO: send message back to client
+        // Root Client sends CONNECT:
+        // 1. Server sends a LOAD_GAME message back to the root client.
+        sendMessage("LOAD_GAME", session);
+        // 2. Server sends a NOTIFICATION message to all other clients in that
+        //    game informing them the root client connected to the game, either as a player
+        //    (in which case their color must be specified) or as an observer.
+
+    }
+
+    private void sendMessage(String message, Session session) throws IOException {
+        session.getRemote().sendString(message);
     }
 
     private void makeMove(String authToken, Integer gameID, Session session) {
+        // Used to request to make a move in a game.
     }
 
 
     private void leave(String authToken, Integer gameID, Session session) {
+        //Tells the server you are leaving the game so it will stop sending you notifications.
     }
 
     private void resign(String authToken, Integer gameID, Session session) {
+        //Forfeits the match and ends the game (no more moves can be made).
     }
 
 

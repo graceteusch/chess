@@ -15,13 +15,13 @@ public class PostloginClient implements Client {
     private AuthData currUser;
     private Repl repl;
     private ArrayList<GameData> lastListedGames;
-    private WebSocketFacade ws;
+    private WebSocketFacade webSocket;
 
     public PostloginClient(ServerFacade server, Repl repl, AuthData auth) {
         this.server = server;
         this.repl = repl;
         this.currUser = auth;
-        this.ws = new WebSocketFacade(server.getServerUrl());
+        this.webSocket = new WebSocketFacade(server.getServerUrl());
     }
 
     @Override
@@ -131,7 +131,8 @@ public class PostloginClient implements Client {
 
             // call the server facade join/play game function
             server.joinGame(actualID, color, currUser);
-            // TODO: add websocket CONNECT call (websocket should then LOAD_GAME
+            // TODO: add websocket CONNECT call (websocket should then LOAD_GAME)
+            webSocket.joinGame(actualID, color, currUser);
             // TODO: notify other players/observers that somebody joined the game (??? should that go here or in gameplay?)
             // TODO: enter gameplay state
 

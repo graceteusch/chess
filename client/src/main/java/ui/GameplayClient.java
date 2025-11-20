@@ -25,12 +25,12 @@ public class GameplayClient implements Client {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "redraw" -> redrawBoard(params);
-                case "leave" -> leave(params);
-                case "move" -> makeMove(params);
-                case "resign" -> resign(params);
-                case "highlight" -> highlightMoves(params);
-                case "quit" -> "Quit";
+//                case "redraw" -> redrawBoard(params);
+//                case "leave" -> leave(params);
+//                case "move" -> makeMove(params);
+//                case "resign" -> resign(params);
+//                case "highlight" -> highlightMoves(params);
+//                case "quit" -> "Quit";
                 default -> help();
             };
         } catch (Throwable ex) {
