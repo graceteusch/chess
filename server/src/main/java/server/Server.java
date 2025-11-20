@@ -21,6 +21,8 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
 
+    private WebSocketHandler webSocketHandler;
+
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
         //var dataAccess = new MemoryDataAccessObject();
@@ -32,6 +34,7 @@ public class Server {
         }
         userService = new UserService(dataAccess);
         gameService = new GameService(dataAccess);
+        webSocketHandler = new WebSocketHandler();
 
         // Register your endpoints and exception handlers here.
         server.delete("db", ctx -> clear(ctx));
@@ -41,6 +44,11 @@ public class Server {
         server.post("game", ctx -> createGame(ctx));
         server.put("game", ctx -> joinGame(ctx));
         server.get("game", ctx -> listGames(ctx));
+        server.ws("/ws", ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
 
     }
 

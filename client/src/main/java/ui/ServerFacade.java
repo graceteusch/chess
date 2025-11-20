@@ -21,6 +21,9 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public String getServerUrl() {
+        return serverUrl;
+    }
 
     // register
     public AuthData register(UserData user) throws ServerResponseException {

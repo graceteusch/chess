@@ -15,11 +15,13 @@ public class PostloginClient implements Client {
     private AuthData currUser;
     private Repl repl;
     private ArrayList<GameData> lastListedGames;
+    private WebSocketFacade ws;
 
     public PostloginClient(ServerFacade server, Repl repl, AuthData auth) {
         this.server = server;
         this.repl = repl;
         this.currUser = auth;
+        this.ws = new WebSocketFacade(server.getServerUrl());
     }
 
     @Override
@@ -129,6 +131,9 @@ public class PostloginClient implements Client {
 
             // call the server facade join/play game function
             server.joinGame(actualID, color, currUser);
+            // TODO: add websocket CONNECT call (websocket should then LOAD_GAME
+            // TODO: notify other players/observers that somebody joined the game (??? should that go here or in gameplay?)
+            // TODO: enter gameplay state
 
             // give: playerColor and gameID
             // get back: nothing?? —> should it give back a game object?
@@ -163,6 +168,9 @@ public class PostloginClient implements Client {
                         " To see available games and their numbers, use 'list'.");
             }
 
+            // TODO: add websocket CONNECT call (websocket should then LOAD_GAME for the observer)
+            // TODO: notify other players/observers that somebody joined the game (??? should that go here or in gameplay?)
+            // TODO: enter gameplay state
             System.out.printf("You are now observing game #%d.%n", gameNum);
             var game = new ChessGame();
             BoardDrawer.drawBoard(game.getBoard(), "WHITE");
