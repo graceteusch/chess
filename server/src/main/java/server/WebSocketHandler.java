@@ -6,13 +6,17 @@ import dataaccess.DataAccessException;
 import dataaccess.DataAccessObject;
 import dataaccess.SqlDataAccess;
 import io.javalin.websocket.*;
+import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
@@ -34,6 +38,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleMessage(WsMessageContext ctx) {
         try {
             UserGameCommand action = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+
+            try {
+                checkValidCommand(action);
+            } catch (DataAccessException ex) {
+                ServerMessage error = new ErrorMessage(ex.getMessage());
+                sendMessage(error, ctx.session);
+                return;
+            }
+
             switch (action.GetCommandType()) {
                 case CONNECT -> connect(action.getAuthToken(), action.getGameID(), ctx.session);
                 case MAKE_MOVE -> makeMove(action.getAuthToken(), action.getGameID(), ctx.session);
@@ -48,6 +61,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleClose(WsCloseContext ctx) {
         System.out.println("Websocket closed");
+    }
+
+    private void checkValidCommand(UserGameCommand command) throws DataAccessException {
+        var authToken = command.getAuthToken();
+        var gameID = command.getGameID();
+        AuthData auth = dataAccess.getAuth(authToken);
+        GameData gameData = dataAccess.getGame(gameID);
+        if (auth == null) {
+            throw new DataAccessException("Error: invalid registration/login");
+        }
+        if (gameData == null) {
+            throw new DataAccessException("Error: invalid game");
+        }
     }
 
 
