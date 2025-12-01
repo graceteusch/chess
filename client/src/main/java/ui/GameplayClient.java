@@ -78,10 +78,16 @@ public class GameplayClient implements Client {
 
     private String redrawBoard(String[] params) {
         if (params.length == 0) {
-            BoardDrawer.drawBoard(currGame.getBoard(), color);
+            if (color == null) {
+                BoardDrawer.drawBoard(currGame.getBoard(), ChessGame.TeamColor.WHITE);
+            } else {
+                BoardDrawer.drawBoard(currGame.getBoard(), color);
+            }
+            return "";
+        } else {
+            System.out.println("Invalid input");
+            throw new ServerResponseException("To redraw the board, please use the following format: Redraw");
         }
-        System.out.println("Invalid input");
-        throw new ServerResponseException("To redraw the board, please use the following format: Redraw");
     }
 
     private String leave(String[] params) {
