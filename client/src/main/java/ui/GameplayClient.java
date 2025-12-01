@@ -25,12 +25,12 @@ public class GameplayClient implements Client {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-//                case "redraw" -> redrawBoard(params);
-//                case "leave" -> leave(params);
-//                case "move" -> makeMove(params);
-//                case "resign" -> resign(params);
-//                case "highlight" -> highlightMoves(params);
-//                case "quit" -> "Quit";
+                case "redraw" -> redrawBoard(params);
+                case "leave" -> leave(params);
+                case "move" -> makeMove(params);
+                case "resign" -> resign(params);
+                case "highlight" -> highlightMoves(params);
+                case "quit" -> "Quit";
                 default -> help();
             };
         } catch (Throwable ex) {
@@ -38,15 +38,37 @@ public class GameplayClient implements Client {
         }
     }
 
+
+    private String redrawBoard(String[] params) {
+        return null;
+    }
+
+    private String leave(String[] params) {
+    }
+
+    private String makeMove(String[] params) {
+        return null;
+    }
+
+    private String resign(String[] params) {
+        return "";
+    }
+
+
+    private String highlightMoves(String[] params) {
+        return "";
+    }
+
+
     @Override
     public String help() {
         return """
                 Commands you can use:
                 - Redraw - redraw the game board
                 - Leave - leave the game
-                - Move <PIECE POSITION> <POSITION TO MOVE TO> - make a move. Use the format 'a2 a4' to represent the move you want to make
+                - Move <PIECE POSITION> <POSITION TO MOVE TO> - make a move. Use the format 'a2 a4' to represent the move you want to make.
                 - Resign - Forfeit the game
-                - Highlight <PIECE POSITION> - highlight all legal moves for a given piece. User the format 'a2' to represent the piece.
+                - Highlight <PIECE POSITION> - highlight all legal moves for a given piece. Use the format 'a2' to represent the piece.
                 - Help - list all possible commands!
                 """;
     }

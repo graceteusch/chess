@@ -79,9 +79,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.add(session, gameID);
         String msg;
         if (color.equals("observer")) {
-            msg = String.format("%s joined the game as an observer", user);
+            msg = String.format("%s joined the game as an observer.", user);
         } else {
-            msg = String.format("%s joined the game as the %s player", user, color);
+            msg = String.format("%s joined the game as the %s player.", user, color);
         }
         ServerMessage notify = new NotificationMessage(msg);
         connections.broadcast(session, notify, gameID);

@@ -54,7 +54,7 @@ public class WebSocketFacade extends Endpoint {
     public void joinGame(int actualID, String color, AuthData currUser) throws ServerResponseException {
         try {
             ChessGame.TeamColor currTeam;
-            if (color.equalsIgnoreCase("WHITE")) {
+            if (color.equalsIgnoreCase("WHITE") || color.equals("observer")) {
                 this.color = ChessGame.TeamColor.WHITE;
             } else {
                 this.color = ChessGame.TeamColor.BLACK;

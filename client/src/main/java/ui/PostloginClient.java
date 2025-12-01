@@ -131,17 +131,17 @@ public class PostloginClient implements Client {
 
             // call the server facade join/play game function
             server.joinGame(actualID, color, currUser);
-            // TODO: add websocket CONNECT call (websocket should then LOAD_GAME)
+
+            // call the websocket facade join game function (which sends a connect message)
             webSocket.joinGame(actualID, color, currUser);
-            // TODO: notify other players/observers that somebody joined the game (??? should that go here or in gameplay?)
-            // TODO: enter gameplay state
+
+            // set the repl client to a Gameplay Client
+            repl.setClient(new GameplayClient(server, repl, currUser, webSocket));
+            repl.setState(ReplState.GAMEPLAY);
 
             // give: playerColor and gameID
             // get back: nothing?? —> should it give back a game object?
             System.out.printf("You successfully joined game #%d as the %s player.%n", gameNum, color);
-
-//            var game = new ChessGame();
-//            BoardDrawer.drawBoard(game.getBoard(), color);
             return "";
         }
         System.out.println("Invalid input");
@@ -169,14 +169,19 @@ public class PostloginClient implements Client {
                         " To see available games and their numbers, use 'list'.");
             }
 
-            // TODO: add websocket CONNECT call (websocket should then LOAD_GAME for the observer)
-            // TODO: notify other players/observers that somebody joined the game (??? should that go here or in gameplay?)
-            // TODO: enter gameplay state
-            System.out.printf("You are now observing game #%d.%n", gameNum);
-//            var game = new ChessGame();
-//            BoardDrawer.drawBoard(game.getBoard(), "WHITE");
-//            return "";
+            // get the correct/corresponding game from the lastListedGames list
+            GameData joiningGame = lastListedGames.get(gameNum - 1);
+            // get that game's actual gameID (not just the list number)
+            int actualID = joiningGame.gameID();
 
+            // call the websocket facade join game function (which sends a connect message)
+            webSocket.joinGame(actualID, "observer", currUser);
+
+            // set the repl client to a Gameplay Client
+            repl.setClient(new GameplayClient(server, repl, currUser, webSocket));
+            repl.setState(ReplState.GAMEPLAY);
+
+            System.out.printf("You are now observing game #%d.%n", gameNum);
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To observe a game, please use the following format: Observe <GAME NUMBER>");
