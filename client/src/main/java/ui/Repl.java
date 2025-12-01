@@ -32,8 +32,8 @@ public class Repl {
             //printPrompt();
             System.out.print(SET_TEXT_COLOR_MAGENTA);
             System.out.print("[" + state + "] >>>> ");
-            String line = scanner.nextLine();
             System.out.print(SET_TEXT_COLOR_BLUE);
+            String line = scanner.nextLine();
             try {
                 result = client.evaluate(line);
                 System.out.println(result);

@@ -1,9 +1,13 @@
 package ui;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 import model.AuthData;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,6 +18,7 @@ import static ui.EscapeSequences.*;
 public class WebSocketFacade extends Endpoint {
     private final String serverUrl;
     Session session;
+    private ChessGame.TeamColor color;
 
     public WebSocketFacade(String url) {
         try {
@@ -28,7 +33,16 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     System.out.print(SET_TEXT_COLOR_GREEN);
-                    System.out.println(message);
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+                        LoadGameMessage loadGame = new Gson().fromJson(message, LoadGameMessage.class);
+                        ChessGame game = loadGame.getGame();
+                        BoardDrawer.drawBoard(game.getBoard(), color);
+                    }
+                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+                        NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
+                        System.out.println(notification.getMessage());
+                    }
                 }
             });
 
@@ -39,6 +53,12 @@ public class WebSocketFacade extends Endpoint {
 
     public void joinGame(int actualID, String color, AuthData currUser) throws ServerResponseException {
         try {
+            ChessGame.TeamColor currTeam;
+            if (color.equalsIgnoreCase("WHITE")) {
+                this.color = ChessGame.TeamColor.WHITE;
+            } else {
+                this.color = ChessGame.TeamColor.BLACK;
+            }
             var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, currUser.authToken(), actualID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {

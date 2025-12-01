@@ -1,14 +1,27 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
+import dataaccess.DataAccessObject;
+import dataaccess.SqlDataAccess;
 import io.javalin.websocket.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
+    private DataAccessObject dataAccess;
+    private final ConnectionManager connections = new ConnectionManager();
+
+    public WebSocketHandler(SqlDataAccess dataAccess) {
+        this.dataAccess = dataAccess;
+    }
     //private final ConnectionManager connections = new ConnectionManager();
 
     @Override
@@ -40,20 +53,28 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     // TODO: implement methods for the different message cases
 
-    private void connect(String authToken, Integer gameID, Session session) throws IOException {
+    private void connect(String authToken, Integer gameID, Session session) throws IOException, DataAccessException {
         // server received a CONNECT message from the client
-        // TODO: send message back to client
-        // Root Client sends CONNECT:
+
         // 1. Server sends a LOAD_GAME message back to the root client.
-        sendMessage("LOAD_GAME", session);
+        ChessGame game = dataAccess.getGame(gameID).game();
+        String user = dataAccess.getAuth(authToken).username();
+
+        ServerMessage loadGame = new LoadGameMessage(game);
+        sendMessage(loadGame, session);
+
         // 2. Server sends a NOTIFICATION message to all other clients in that
         //    game informing them the root client connected to the game, either as a player
         //    (in which case their color must be specified) or as an observer.
-
+        connections.add(session, gameID);
+        String msg = String.format("%s joined the game as the %s player", user, "color");
+        ServerMessage notify = new NotificationMessage(msg);
+        connections.broadcast(session, notify, gameID);
     }
 
-    private void sendMessage(String message, Session session) throws IOException {
-        session.getRemote().sendString(message);
+    private void sendMessage(ServerMessage message, Session session) throws IOException {
+        String strMessage = new Gson().toJson(message);
+        session.getRemote().sendString(strMessage);
     }
 
     private void makeMove(String authToken, Integer gameID, Session session) {

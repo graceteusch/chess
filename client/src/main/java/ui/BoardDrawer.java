@@ -9,16 +9,9 @@ import static ui.EscapeSequences.*;
 
 public class BoardDrawer {
 
-    public static void drawBoard(ChessBoard board, String team) {
-        ChessGame.TeamColor currTeam;
-        if (team.equalsIgnoreCase("WHITE")) {
-            currTeam = ChessGame.TeamColor.WHITE;
-        } else {
-            currTeam = ChessGame.TeamColor.BLACK;
-        }
-
+    public static void drawBoard(ChessBoard board, ChessGame.TeamColor team) {
         System.out.print(ERASE_SCREEN);
-        if (currTeam.equals(ChessGame.TeamColor.WHITE)) {
+        if (team.equals(ChessGame.TeamColor.WHITE)) {
             drawWhitePerspective(board);
         } else {
             drawBlackPerspective(board);
@@ -27,7 +20,7 @@ public class BoardDrawer {
 
     private static void drawWhitePerspective(ChessBoard board) {
         System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
-        System.out.println("   a  b  c  d  e  f  g  h  ");
+        System.out.println("\n   a  b  c  d  e  f  g  h  ");
         for (int i = 8; i >= 1; i--) {
             System.out.print(RESET_BG_COLOR);
             System.out.print(SET_TEXT_COLOR_LIGHT_GREY);

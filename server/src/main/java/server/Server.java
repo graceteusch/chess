@@ -34,7 +34,7 @@ public class Server {
         }
         userService = new UserService(dataAccess);
         gameService = new GameService(dataAccess);
-        webSocketHandler = new WebSocketHandler();
+        webSocketHandler = new WebSocketHandler(dataAccess);
 
         // Register your endpoints and exception handlers here.
         server.delete("db", ctx -> clear(ctx));

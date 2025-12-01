@@ -140,8 +140,8 @@ public class PostloginClient implements Client {
             // get back: nothing?? —> should it give back a game object?
             System.out.printf("You successfully joined game #%d as the %s player.%n", gameNum, color);
 
-            var game = new ChessGame();
-            BoardDrawer.drawBoard(game.getBoard(), color);
+//            var game = new ChessGame();
+//            BoardDrawer.drawBoard(game.getBoard(), color);
             return "";
         }
         System.out.println("Invalid input");
@@ -173,9 +173,9 @@ public class PostloginClient implements Client {
             // TODO: notify other players/observers that somebody joined the game (??? should that go here or in gameplay?)
             // TODO: enter gameplay state
             System.out.printf("You are now observing game #%d.%n", gameNum);
-            var game = new ChessGame();
-            BoardDrawer.drawBoard(game.getBoard(), "WHITE");
-            return "";
+//            var game = new ChessGame();
+//            BoardDrawer.drawBoard(game.getBoard(), "WHITE");
+//            return "";
 
         }
         System.out.println("Invalid input");
