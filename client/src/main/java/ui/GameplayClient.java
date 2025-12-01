@@ -85,15 +85,29 @@ public class GameplayClient implements Client {
     }
 
     private String leave(String[] params) {
-        return "";
+        if (params.length == 0) {
+            ws.leaveGame(gameID, currUser);
+            repl.setClient(new PostloginClient(server, repl, currUser));
+            repl.setState(ReplState.LOGGEDIN);
+            return "You left the game.";
+        } else {
+            System.out.println("Invalid input");
+            throw new ServerResponseException("To leave a game, please use the following format: leave");
+        }
     }
 
     private String makeMove(String[] params) {
+        if (color == null) {
+            return "You cannot make moves as an observer.";
+        }
         return null;
     }
 
     private String resign(String[] params) {
-        return "";
+        if (color == null) {
+            return "You cannot resign as an observer.";
+        }
+        return null;
     }
 
 

@@ -19,7 +19,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private DataAccessObject dataAccess;
     private final ConnectionManager connections = new ConnectionManager();
 
-    public WebSocketHandler(SqlDataAccess dataAccess) {
+    public WebSocketHandler(DataAccessObject dataAccess) {
         this.dataAccess = dataAccess;
     }
     //private final ConnectionManager connections = new ConnectionManager();
@@ -93,12 +93,35 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void makeMove(String authToken, Integer gameID, Session session) {
-        // Used to request to make a move in a game.
+        //Used to request to make a move in a game.
     }
 
 
-    private void leave(String authToken, Integer gameID, Session session) {
-        //Tells the server you are leaving the game so it will stop sending you notifications.
+    private void leave(String authToken, Integer gameID, Session session) throws DataAccessException, IOException {
+        // server received a LEAVE message from the client
+
+        // game is updated to remove the user
+        String user = dataAccess.getAuth(authToken).username();
+        String whiteUser = dataAccess.getGame(gameID).whiteUsername();
+        String blackUser = dataAccess.getGame(gameID).blackUsername();
+        if (user.equals(whiteUser)) {
+            // set white username to null
+            dataAccess.updateGame(gameID, "WHITE", null, null);
+        }
+
+        if (user.equals(blackUser)) {
+            // set black username to null
+            dataAccess.updateGame(gameID, "BLACK", null, null);
+        }
+
+
+        // remove session via connectionManager
+        connections.remove(session, gameID);
+
+        // send notification message via connectionManager
+        String msg = String.format("%s left the game.", user);
+        ServerMessage notify = new NotificationMessage(msg);
+        connections.broadcast(session, notify, gameID);
     }
 
     private void resign(String authToken, Integer gameID, Session session) {

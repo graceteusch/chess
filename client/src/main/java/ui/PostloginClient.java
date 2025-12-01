@@ -142,8 +142,7 @@ public class PostloginClient implements Client {
             // call the websocket facade join game function (which sends a connect message)
             webSocket.joinGame(actualID, color, currUser);
 
-            System.out.printf("You successfully joined game #%d as the %s player.%n", gameNum, color);
-            return "";
+            return String.format("You successfully joined game #%d as the %s player.%n", gameNum, color);
         }
         System.out.println("Invalid input");
         throw new ServerResponseException("To join a game, please use the following format: Join <GAME NUMBER> <TEAM COLOR - WHITE or BLACK>");
@@ -175,19 +174,21 @@ public class PostloginClient implements Client {
             // get that game's actual gameID (not just the list number)
             int actualID = joiningGame.gameID();
 
-            GameplayClient gameplayClient = new GameplayClient(server, repl, currUser, webSocket, actualID, "observer");
+            var gameplayClient = new GameplayClient(server, repl, currUser, webSocket, actualID, "observer");
+            webSocket.addGameplayClient(gameplayClient);
+            // transition to Gameplay Client state
+            repl.setClient(gameplayClient);
+            repl.setState(ReplState.GAMEPLAY);
 
             // call the websocket facade join game function (which sends a connect message)
             webSocket.joinGame(actualID, "observer", currUser);
 
-            // set the repl client to a Gameplay Client
-            repl.setClient(gameplayClient);
-            repl.setState(ReplState.GAMEPLAY);
 
-            System.out.printf("You are now observing game #%d.%n", gameNum);
+            return String.format("You are now observing game #%d.%n", gameNum);
+        } else {
+            System.out.println("Invalid input");
+            throw new ServerResponseException("To observe a game, please use the following format: Observe <GAME NUMBER>");
         }
-        System.out.println("Invalid input");
-        throw new ServerResponseException("To observe a game, please use the following format: Observe <GAME NUMBER>");
     }
 
     @Override
