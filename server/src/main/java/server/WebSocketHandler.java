@@ -58,16 +58,31 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // 1. Server sends a LOAD_GAME message back to the root client.
         ChessGame game = dataAccess.getGame(gameID).game();
-        String user = dataAccess.getAuth(authToken).username();
-
         ServerMessage loadGame = new LoadGameMessage(game);
         sendMessage(loadGame, session);
 
         // 2. Server sends a NOTIFICATION message to all other clients in that
         //    game informing them the root client connected to the game, either as a player
         //    (in which case their color must be specified) or as an observer.
+        String user = dataAccess.getAuth(authToken).username();
+        String whiteUser = dataAccess.getGame(gameID).whiteUsername();
+        String blackUser = dataAccess.getGame(gameID).blackUsername();
+        String color;
+        if (user.equals(whiteUser)) {
+            color = "white";
+        } else if (user.equals(blackUser)) {
+            color = "black";
+        } else {
+            color = "observer";
+        }
+
         connections.add(session, gameID);
-        String msg = String.format("%s joined the game as the %s player", user, "color");
+        String msg;
+        if (color.equals("observer")) {
+            msg = String.format("%s joined the game as an observer", user);
+        } else {
+            msg = String.format("%s joined the game as the %s player", user, color);
+        }
         ServerMessage notify = new NotificationMessage(msg);
         connections.broadcast(session, notify, gameID);
     }
