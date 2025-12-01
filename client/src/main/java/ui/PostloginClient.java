@@ -132,15 +132,16 @@ public class PostloginClient implements Client {
             // call the server facade join/play game function
             server.joinGame(actualID, color, currUser);
 
+            // add gameplay client to the websocket facade
+            var gameplayClient = new GameplayClient(server, repl, currUser, webSocket, actualID, color);
+            webSocket.addGameplayClient(gameplayClient);
+            // transition to gameplay client state
+            repl.setClient(gameplayClient);
+            repl.setState(ReplState.GAMEPLAY);
+
             // call the websocket facade join game function (which sends a connect message)
             webSocket.joinGame(actualID, color, currUser);
 
-            // set the repl client to a Gameplay Client
-            repl.setClient(new GameplayClient(server, repl, currUser, webSocket));
-            repl.setState(ReplState.GAMEPLAY);
-
-            // give: playerColor and gameID
-            // get back: nothing?? —> should it give back a game object?
             System.out.printf("You successfully joined game #%d as the %s player.%n", gameNum, color);
             return "";
         }
@@ -174,11 +175,13 @@ public class PostloginClient implements Client {
             // get that game's actual gameID (not just the list number)
             int actualID = joiningGame.gameID();
 
+            GameplayClient gameplayClient = new GameplayClient(server, repl, currUser, webSocket, actualID, "observer");
+
             // call the websocket facade join game function (which sends a connect message)
             webSocket.joinGame(actualID, "observer", currUser);
 
             // set the repl client to a Gameplay Client
-            repl.setClient(new GameplayClient(server, repl, currUser, webSocket));
+            repl.setClient(gameplayClient);
             repl.setState(ReplState.GAMEPLAY);
 
             System.out.printf("You are now observing game #%d.%n", gameNum);

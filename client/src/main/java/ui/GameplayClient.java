@@ -1,8 +1,15 @@
 package ui;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.AuthData;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.Arrays;
+
+import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
 public class GameplayClient implements Client {
 
@@ -11,11 +18,28 @@ public class GameplayClient implements Client {
     private final AuthData currUser;
     private final WebSocketFacade ws;
 
-    public GameplayClient(ServerFacade server, Repl repl, AuthData auth, WebSocketFacade ws) {
+    private int gameID;
+    private ChessGame currGame;
+    private ChessGame.TeamColor color;
+
+
+    public GameplayClient(ServerFacade server, Repl repl, AuthData auth, WebSocketFacade ws, int gameID, String color) {
         this.server = server;
         this.repl = repl;
         this.currUser = auth;
         this.ws = ws;
+        this.gameID = gameID;
+        if (color.equalsIgnoreCase("WHITE")) {
+            this.color = ChessGame.TeamColor.WHITE;
+        } else if (color.equalsIgnoreCase("BLACK")) {
+            this.color = ChessGame.TeamColor.BLACK;
+        } else if (color.equalsIgnoreCase("observer")) {
+            this.color = null;
+        }
+    }
+
+    public void updateGame(ChessGame game) {
+        this.currGame = game;
     }
 
     @Override
@@ -38,12 +62,30 @@ public class GameplayClient implements Client {
         }
     }
 
+    public void onMessage(String message) {
+        System.out.print(SET_TEXT_COLOR_GREEN);
+        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+        if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            LoadGameMessage loadGame = new Gson().fromJson(message, LoadGameMessage.class);
+            this.currGame = loadGame.getGame();
+            BoardDrawer.drawBoard(currGame.getBoard(), color);
+        }
+        if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
+            System.out.println(notification.getMessage());
+        }
+    }
 
     private String redrawBoard(String[] params) {
-        return null;
+        if (params.length == 0) {
+            BoardDrawer.drawBoard(currGame.getBoard(), color);
+        }
+        System.out.println("Invalid input");
+        throw new ServerResponseException("To redraw the board, please use the following format: Redraw");
     }
 
     private String leave(String[] params) {
+        return "";
     }
 
     private String makeMove(String[] params) {

@@ -19,6 +19,7 @@ public class WebSocketFacade extends Endpoint {
     private final String serverUrl;
     Session session;
     private ChessGame.TeamColor color;
+    private GameplayClient gameplayClient;
 
     public WebSocketFacade(String url) {
         try {
@@ -32,23 +33,28 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    System.out.print(SET_TEXT_COLOR_GREEN);
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-                        LoadGameMessage loadGame = new Gson().fromJson(message, LoadGameMessage.class);
-                        ChessGame game = loadGame.getGame();
-                        BoardDrawer.drawBoard(game.getBoard(), color);
-                    }
-                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
-                        NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
-                        System.out.println(notification.getMessage());
-                    }
+                    gameplayClient.onMessage(message);
+//                    System.out.print(SET_TEXT_COLOR_GREEN);
+//                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+//                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+//                        LoadGameMessage loadGame = new Gson().fromJson(message, LoadGameMessage.class);
+//                        ChessGame game = loadGame.getGame();
+//                        BoardDrawer.drawBoard(game.getBoard(), color);
+//                    }
+//                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+//                        NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
+//                        System.out.println(notification.getMessage());
+//                    }
                 }
             });
 
         } catch (DeploymentException | IOException | URISyntaxException e) {
             throw new ServerResponseException(e.getMessage());
         }
+    }
+
+    public void addGameplayClient(GameplayClient gameplayClient) {
+        this.gameplayClient = gameplayClient;
     }
 
     public void joinGame(int actualID, String color, AuthData currUser) throws ServerResponseException {
