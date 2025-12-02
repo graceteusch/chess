@@ -118,6 +118,7 @@ public class GameplayClient implements Client {
             //TODO: include implementation for promotion (??)
             ChessMove move = new ChessMove(currPos, newPos, null);
 
+            ws.makeMove(gameID, currUser, move);
 
             return String.format("You made the move" + params[0] + " " + params[1] + ".");
         } else {

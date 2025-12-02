@@ -5,6 +5,7 @@ import chess.ChessMove;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 import model.AuthData;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -84,7 +85,10 @@ public class WebSocketFacade extends Endpoint {
 
     public void makeMove(int actualID, AuthData currUser, ChessMove move) {
         try {
-            var action = new
+            var action = new MakeMoveCommand(currUser.authToken(), actualID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (IOException ex) {
+            throw new ServerResponseException(ex.getMessage());
         }
     }
 
