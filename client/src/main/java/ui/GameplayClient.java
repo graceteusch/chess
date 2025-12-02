@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.AuthData;
@@ -111,12 +112,18 @@ public class GameplayClient implements Client {
         if (params.length == 2) {
             String currPiecePosition = params[0];
             String newPosition = params[1];
-            
+
             ChessPosition currPos = getChessPosition(currPiecePosition);
             ChessPosition newPos = getChessPosition(newPosition);
+            //TODO: include implementation for promotion (??)
+            ChessMove move = new ChessMove(currPos, newPos, null);
 
+
+            return String.format("You made the move" + params[0] + " " + params[1] + ".");
+        } else {
+            System.out.println("Invalid input");
+            throw new ServerResponseException("To make a move, use the following format: a2 a4 (for example)");
         }
-        return null;
     }
 
     private ChessPosition getChessPosition(String input) {
