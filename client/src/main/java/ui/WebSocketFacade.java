@@ -36,17 +36,6 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     gameplayClient.onMessage(message);
-//                    System.out.print(SET_TEXT_COLOR_GREEN);
-//                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-//                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-//                        LoadGameMessage loadGame = new Gson().fromJson(message, LoadGameMessage.class);
-//                        ChessGame game = loadGame.getGame();
-//                        BoardDrawer.drawBoard(game.getBoard(), color);
-//                    }
-//                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
-//                        NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
-//                        System.out.println(notification.getMessage());
-//                    }
                 }
             });
 

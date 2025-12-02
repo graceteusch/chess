@@ -55,7 +55,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
-            switch (action.GetCommandType()) {
+            switch (action.getCommandType()) {
                 case CONNECT -> connect(action.getAuthToken(), action.getGameID(), ctx.session);
                 case MAKE_MOVE -> {
                     MakeMoveCommand moveAction = new Gson().fromJson(ctx.message(), MakeMoveCommand.class);
@@ -86,9 +86,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             throw new DataAccessException("Error: invalid game");
         }
     }
-
-
-    // TODO: implement methods for the different message cases
 
     private void connect(String authToken, Integer gameID, Session session) throws IOException, DataAccessException {
         // server received a CONNECT message from the client
@@ -159,15 +156,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
-        // check if the move is a valid move
-//        Collection<ChessMove> validMoves = game.validMoves(move.getStartPosition());
-//        if (!validMoves.contains(move)) {
-//            ServerMessage error = new ErrorMessage("Error: invalid move");
-//            sendMessage(error, session);
-//            return;
-//        }
-
-        // make move (catch InvalidException)
+        // make move (and catch InvalidException)
         try {
             game.makeMove(move);
         } catch (InvalidMoveException ex) {

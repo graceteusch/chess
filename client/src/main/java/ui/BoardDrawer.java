@@ -12,16 +12,34 @@ public class BoardDrawer {
     public static void drawBoard(ChessBoard board, ChessGame.TeamColor team) {
         System.out.print(ERASE_SCREEN);
         if (team.equals(ChessGame.TeamColor.WHITE)) {
-            drawWhitePerspective(board);
+            drawPerspective(board, true);
         } else {
-            drawBlackPerspective(board);
+            drawPerspective(board, false);
         }
     }
 
-    private static void drawWhitePerspective(ChessBoard board) {
+    private static void drawPerspective(ChessBoard board, boolean whitePerspective) {
         System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
-        System.out.println("\n   a  b  c  d  e  f  g  h  ");
-        for (int i = 8; i >= 1; i--) {
+        String colNames;
+        int rowStart;
+        int rowEnd;
+        int rowIncrease;
+
+        if (whitePerspective) {
+            colNames = "\n   a  b  c  d  e  f  g  h  ";
+            rowStart = 8;
+            rowEnd = 1;
+            rowIncrease = -1;
+        } else {
+            colNames = "\n   a  b  c  d  e  f  g  h  ";
+            rowStart = 1;
+            rowEnd = 8;
+            rowIncrease = 1;
+        }
+
+        System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
+        System.out.println(colNames);
+        for (int i = rowStart; i >= rowEnd; i += rowIncrease) {
             System.out.print(RESET_BG_COLOR);
             System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
 
@@ -42,34 +60,8 @@ public class BoardDrawer {
             System.out.println();
         }
         System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
-        System.out.println("  a  b  c  d  e  f  g  h  ");
-    }
+        System.out.println(colNames);
 
-    private static void drawBlackPerspective(ChessBoard board) {
-        System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
-        System.out.println("   h  g  f  e  d  c  b  a  ");
-        for (int i = 1; i <= 8; i++) {
-            System.out.print(RESET_BG_COLOR);
-            System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
-
-            System.out.print(i + " ");
-            for (int j = 8; j >= 1; j--) {
-                boolean isLightSquare = (i + j) % 2 != 0;
-                if (isLightSquare) {
-                    System.out.print(SET_BG_COLOR_LIGHT_BLUE);
-                    var pieceSymbol = getUnicodeSymbol(board.getPiece(new ChessPosition(i, j)));
-                    System.out.print(pieceSymbol);
-                } else {
-                    System.out.print(SET_BG_COLOR_DARK_BLUE);
-                    var pieceSymbol = getUnicodeSymbol(board.getPiece(new ChessPosition(i, j)));
-                    System.out.print(pieceSymbol);
-                }
-                System.out.print(RESET_BG_COLOR);
-            }
-            System.out.println();
-        }
-        System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
-        System.out.println("   h  g  f  e  d  c  b  a  ");
     }
 
     private static String getUnicodeSymbol(ChessPiece piece) {
