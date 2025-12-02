@@ -1,9 +1,8 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
+
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -12,13 +11,14 @@ public class BoardDrawer {
     public static void drawBoard(ChessBoard board, ChessGame.TeamColor team) {
         System.out.print(ERASE_SCREEN);
         if (team.equals(ChessGame.TeamColor.WHITE)) {
-            drawPerspective(board, true);
+            drawPerspective(board, true, null);
         } else {
-            drawPerspective(board, false);
+            drawPerspective(board, false, null);
         }
     }
 
-    private static void drawPerspective(ChessBoard board, boolean whitePerspective) {
+
+    public static void drawPerspective(ChessBoard board, boolean whitePerspective, Collection<ChessPosition> highlightSquares) {
         System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
         String colNames;
         int rowStart;
@@ -45,13 +45,27 @@ public class BoardDrawer {
 
             System.out.print(i + " ");
             for (int j = 1; j <= 8; j++) {
+                ChessPosition currPos = new ChessPosition(i, j);
+                boolean highlight = false;
+                if (highlightSquares != null && highlightSquares.contains(currPos)) {
+                    highlight = true;
+                }
+
                 boolean isLightSquare = (i + j) % 2 != 0;
                 if (isLightSquare) {
-                    System.out.print(SET_BG_COLOR_LIGHT_BLUE);
+                    if (highlight) {
+                        System.out.print(SET_BG_COLOR_LIGHT_YELLOW);
+                    } else {
+                        System.out.print(SET_BG_COLOR_LIGHT_BLUE);
+                    }
                     var pieceSymbol = getUnicodeSymbol(board.getPiece(new ChessPosition(i, j)));
                     System.out.print(pieceSymbol);
                 } else {
-                    System.out.print(SET_BG_COLOR_DARK_BLUE);
+                    if (highlight) {
+                        System.out.print(SET_BG_COLOR_DARK_YELLOW);
+                    } else {
+                        System.out.print(SET_BG_COLOR_DARK_BLUE);
+                    }
                     var pieceSymbol = getUnicodeSymbol(board.getPiece(new ChessPosition(i, j)));
                     System.out.print(pieceSymbol);
                 }

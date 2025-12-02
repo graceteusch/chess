@@ -34,7 +34,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         this.dataAccess = dataAccess;
         gameOver = false;
     }
-    //private final ConnectionManager connections = new ConnectionManager();
 
     @Override
     public void handleConnect(WsConnectContext ctx) {

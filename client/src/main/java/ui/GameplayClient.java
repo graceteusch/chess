@@ -5,12 +5,12 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.AuthData;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
@@ -76,6 +76,10 @@ public class GameplayClient implements Client {
         if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
             NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
             System.out.println(notification.getMessage());
+        }
+        if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            ErrorMessage error = new Gson().fromJson(message, ErrorMessage.class);
+            System.out.println(error.getMessage());
         }
     }
 
@@ -200,7 +204,27 @@ public class GameplayClient implements Client {
 
 
     private String highlightMoves(String[] params) {
-        return "";
+        if (params.length == 1) {
+            ChessPosition position = getChessPosition(params[0]);
+            Collection<ChessMove> legalMoves = currGame.validMoves(position);
+            ArrayList<ChessPosition> squaresToHighlight = new ArrayList<>();
+            squaresToHighlight.add(position);
+            for (ChessMove move : legalMoves) {
+                squaresToHighlight.add(move.getEndPosition());
+            }
+            boolean whitePerspective;
+            if (color == null || color == ChessGame.TeamColor.WHITE) {
+                whitePerspective = true;
+            } else {
+                whitePerspective = false;
+            }
+
+            BoardDrawer.drawPerspective(currGame.getBoard(), whitePerspective, squaresToHighlight);
+            return "";
+        } else {
+            System.out.println("Invalid input");
+            throw new ServerResponseException("To highlight valid moves, please use the following format: highlight a2");
+        }
     }
 
 
@@ -213,7 +237,7 @@ public class GameplayClient implements Client {
                 - Move <PIECE POSITION> <POSITION TO MOVE TO> - make a move. Use the format 'a2 a4' to represent the move you want to make.
                 - Resign - Forfeit the game
                 - Highlight <PIECE POSITION> - highlight all legal moves for a given piece. Use the format 'a2' to represent the piece.
-                - Help - list all possible commands!
+                - Help - list all possible commands
                 """;
     }
 }
