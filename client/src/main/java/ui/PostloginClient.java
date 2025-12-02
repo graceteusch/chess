@@ -108,6 +108,8 @@ public class PostloginClient implements Client {
         if (params.length == 2) {
             String gameNumber = params[0];
             String color = params[1];
+
+
             int gameNum;
             try {
                 gameNum = parseInt(gameNumber);

@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.AuthData;
 import websocket.messages.LoadGameMessage;
@@ -106,7 +107,58 @@ public class GameplayClient implements Client {
         if (color == null) {
             return "You cannot make moves as an observer.";
         }
+
+        if (params.length == 2) {
+            String currPiecePosition = params[0];
+            String newPosition = params[1];
+            
+            ChessPosition currPos = getChessPosition(currPiecePosition);
+            ChessPosition newPos = getChessPosition(newPosition);
+
+        }
         return null;
+    }
+
+    private ChessPosition getChessPosition(String input) {
+        if (input.length() != 2) {
+            System.out.println("Invalid input");
+            throw new ServerResponseException("To make a move, use the following format: a2 a4 (for example)");
+        }
+        char colChar = input.charAt(0);
+        char rowChar = input.charAt(0);
+
+        // check if col char can be converted to a valid number
+        int col = colToInt(colChar);
+
+        // check if row char is a valid number
+        int row;
+        try {
+            row = Integer.parseInt(String.valueOf(rowChar));
+        } catch (NumberFormatException ex) {
+            System.out.println("Invalid input");
+            throw new ServerResponseException("To make a move, use the following format: a2 a4 (for example)");
+        }
+        if (row < 1 || row > 8) {
+            System.out.println("Invalid input");
+            throw new ServerResponseException("Make sure you specify a valid position on the board (columns a-h, rows 1-8)");
+        }
+
+        return new ChessPosition(row, col);
+    }
+
+    private int colToInt(char colChar) {
+        return switch (Character.toLowerCase(colChar)) {
+            case 'a' -> 1;
+            case 'b' -> 2;
+            case 'c' -> 3;
+            case 'd' -> 4;
+            case 'e' -> 5;
+            case 'f' -> 6;
+            case 'g' -> 7;
+            case 'h' -> 8;
+            default ->
+                    throw new ServerResponseException("Make sure you specify a valid position on the board (columns a-h, rows 1-8)");
+        };
     }
 
     private String resign(String[] params) {
