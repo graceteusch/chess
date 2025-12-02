@@ -227,8 +227,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(session, notify, gameID);
     }
 
-    private void resign(String authToken, Integer gameID, Session session) {
+    private void resign(String authToken, Integer gameID, Session session) throws DataAccessException, IOException {
         //Forfeits the match and ends the game (no more moves can be made).
+        String user = dataAccess.getAuth(authToken).username();
+        String whiteUser = dataAccess.getGame(gameID).whiteUsername();
+        String blackUser = dataAccess.getGame(gameID).blackUsername();
+        ChessGame game = dataAccess.getGame(gameID).game();
+        if (!user.equals(whiteUser) && !user.equals(blackUser)) {
+            ServerMessage error = new ErrorMessage("Error: you cannot resign as an observer");
+            sendMessage(error, session);
+            return;
+        }
+
+        if (game.getGameStatus()) {
+            ServerMessage error = new ErrorMessage("Error: game is over");
+            sendMessage(error, session);
+            return;
+        }
+
+
+        game.setGameStatus(true);
+        dataAccess.updateGame(gameID, null, null, game);
+
+        // send notification message via connectionManager
+        String msg = String.format("%s resigned from the game.", user);
+        ServerMessage notify = new NotificationMessage(msg);
+        connections.broadcast(null, notify, gameID);
     }
 
 

@@ -48,6 +48,10 @@ public class ChessGame {
         currTeamTurn = team;
     }
 
+    public void setGameStatus(boolean isOver) {
+        gameOver = isOver;
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
