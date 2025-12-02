@@ -17,6 +17,7 @@ public class ChessGame {
     private TeamColor currTeamTurn;
     private ChessPosition whiteKing;
     private ChessPosition blackKing;
+    private boolean gameOver;
 
     public ChessGame() {
         currTeamTurn = TeamColor.WHITE;
@@ -24,6 +25,11 @@ public class ChessGame {
         board.resetBoard();
         whiteKing = new ChessPosition(1, 5);
         blackKing = new ChessPosition(8, 5);
+        gameOver = false;
+    }
+
+    public boolean getGameStatus() {
+        return gameOver;
     }
 
     /**
@@ -101,6 +107,11 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+
+        if (gameOver) {
+            throw new InvalidMoveException("Error: game is over, no more moves can be made.");
+        }
+
         // get piece that is going to be moved (piece at start position)
         ChessPiece pieceToMove = board.getPiece(move.getStartPosition());
         // if there is actually a piece there
@@ -136,6 +147,10 @@ public class ChessGame {
                     currTeamTurn = TeamColor.BLACK;
                 } else {
                     currTeamTurn = TeamColor.WHITE;
+                }
+
+                if (isInCheckmate(currTeamTurn) || isInStalemate(currTeamTurn)) {
+                    gameOver = true;
                 }
             } else { // invalid move - throw an exception
                 throw new InvalidMoveException("Move provided is NOT VALID.");

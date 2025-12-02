@@ -28,9 +28,11 @@ import static chess.ChessGame.TeamColor.*;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
     private DataAccessObject dataAccess;
     private final ConnectionManager connections = new ConnectionManager();
+    private boolean gameOver;
 
     public WebSocketHandler(DataAccessObject dataAccess) {
         this.dataAccess = dataAccess;
+        gameOver = false;
     }
     //private final ConnectionManager connections = new ConnectionManager();
 
@@ -188,11 +190,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
         if (game.isInCheckmate(game.getTeamTurn())) {
-            connections.broadcast(session, new NotificationMessage(String.format("%s is in checkmate.", game.getTeamTurn())), gameID);
+            connections.broadcast(null, new NotificationMessage(String.format("%s is in checkmate.", game.getTeamTurn())), gameID);
         } else if (game.isInStalemate(game.getTeamTurn())) {
-            connections.broadcast(session, new NotificationMessage(String.format("%s is in stalemate.", game.getTeamTurn())), gameID);
+            connections.broadcast(null, new NotificationMessage(String.format("%s is in stalemate.", game.getTeamTurn())), gameID);
         } else if (game.isInCheck(game.getTeamTurn())) {
-            connections.broadcast(session, new NotificationMessage(String.format("%s is in check.", game.getTeamTurn())), gameID);
+            connections.broadcast(null, new NotificationMessage(String.format("%s is in check.", game.getTeamTurn())), gameID);
         }
 
     }
