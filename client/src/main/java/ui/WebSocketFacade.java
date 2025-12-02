@@ -92,6 +92,15 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+    public void resign(int actualID, AuthData currUser) {
+        try {
+            var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, currUser.authToken(), actualID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (IOException ex) {
+            throw new ServerResponseException(ex.getMessage());
+        }
+    }
+
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }

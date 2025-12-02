@@ -10,6 +10,7 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.Arrays;
+import java.util.Scanner;
 
 import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
@@ -173,7 +174,28 @@ public class GameplayClient implements Client {
         if (color == null) {
             return "You cannot resign as an observer.";
         }
-        return null;
+
+        if (params.length == 0) {
+            System.out.println("Are you sure you want to resign? Type yes or no.");
+            Scanner scanner = new Scanner(System.in);
+            String line = scanner.nextLine();
+
+            String[] resignTokens = line.toLowerCase().split(" ");
+            String resignCmd = (resignTokens.length > 0) ? resignTokens[0] : "help";
+            String[] resignParams = Arrays.copyOfRange(resignTokens, 1, resignTokens.length);
+            if (resignParams.length != 1) {
+                return "Not resigning.";
+            }
+            if (!resignParams[0].equalsIgnoreCase("yes")) {
+                return "Not resigning.";
+            }
+
+            ws.resign(gameID, currUser);
+            return "You have resigned from the game.";
+        } else {
+            System.out.println("Invalid input");
+            throw new ServerResponseException("To resign from a game, please use the following format: resign");
+        }
     }
 
 
