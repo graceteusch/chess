@@ -1,15 +1,18 @@
 package server;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.DataAccessObject;
-import dataaccess.SqlDataAccess;
 import io.javalin.websocket.*;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -18,6 +21,9 @@ import websocket.messages.ServerMessage;
 
 import javax.xml.crypto.Data;
 import java.io.IOException;
+import java.util.Collection;
+
+import static chess.ChessGame.TeamColor.*;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
     private DataAccessObject dataAccess;
@@ -49,7 +55,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             switch (action.GetCommandType()) {
                 case CONNECT -> connect(action.getAuthToken(), action.getGameID(), ctx.session);
-                case MAKE_MOVE -> makeMove(action.getAuthToken(), action.getGameID(), ctx.session);
+                case MAKE_MOVE -> {
+                    MakeMoveCommand moveAction = new Gson().fromJson(ctx.message(), MakeMoveCommand.class);
+                    makeMove(moveAction.getAuthToken(), moveAction.getGameID(), moveAction.getMove(), ctx.session);
+                }
                 case LEAVE -> leave(action.getAuthToken(), action.getGameID(), ctx.session);
                 case RESIGN -> resign(action.getAuthToken(), action.getGameID(), ctx.session);
             }
@@ -118,8 +127,74 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         session.getRemote().sendString(strMessage);
     }
 
-    private void makeMove(String authToken, Integer gameID, Session session) {
-        //Used to request to make a move in a game.
+    private void makeMove(String authToken, Integer gameID, ChessMove move, Session session) throws DataAccessException, IOException {
+        String user = dataAccess.getAuth(authToken).username();
+        ChessGame game = dataAccess.getGame(gameID).game();
+        String whiteUser = dataAccess.getGame(gameID).whiteUsername();
+        String blackUser = dataAccess.getGame(gameID).blackUsername();
+
+        // check whose turn it is
+        ChessGame.TeamColor currTurn = game.getTeamTurn();
+        if (currTurn.equals(WHITE) && !user.equals(whiteUser)) {
+            ServerMessage error = new ErrorMessage("Error: wrong team's turn");
+            sendMessage(error, session);
+            return;
+        } else if (currTurn.equals(BLACK) && !user.equals(blackUser)) {
+            ServerMessage error = new ErrorMessage("Error: wrong team's turn");
+            sendMessage(error, session);
+            return;
+        }
+
+        // check if the piece being moved is the correct color
+        ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+        if (currTurn.equals(WHITE) && piece.getTeamColor() != WHITE) {
+            ServerMessage error = new ErrorMessage("Error: trying to move opponent's piece");
+            sendMessage(error, session);
+            return;
+        } else if (currTurn.equals(BLACK) && piece.getTeamColor() != BLACK) {
+            ServerMessage error = new ErrorMessage("Error: trying to move opponent's piece");
+            sendMessage(error, session);
+            return;
+        }
+
+        // check if the move is a valid move
+//        Collection<ChessMove> validMoves = game.validMoves(move.getStartPosition());
+//        if (!validMoves.contains(move)) {
+//            ServerMessage error = new ErrorMessage("Error: invalid move");
+//            sendMessage(error, session);
+//            return;
+//        }
+
+        // make move (catch InvalidException)
+        try {
+            game.makeMove(move);
+        } catch (InvalidMoveException ex) {
+            ServerMessage error = new ErrorMessage("Error: invalid move");
+            sendMessage(error, session);
+            return;
+        }
+
+        // update game in the db
+        dataAccess.updateGame(gameID, null, null, game);
+
+        // Server sends a LOAD_GAME message to all clients in the game (including the root client) with an updated game.
+        ChessGame updatedGame = dataAccess.getGame(gameID).game();
+        ServerMessage loadGame = new LoadGameMessage(updatedGame);
+        sendMessage(loadGame, session);
+        connections.broadcast(session, loadGame, gameID);
+
+        // Server sends a Notification message to all other clients in that game informing them what move was made.
+        connections.broadcast(session, new NotificationMessage(String.format("%s made the move %s.", user, move)), gameID);
+
+        // If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
+        if (game.isInCheckmate(game.getTeamTurn())) {
+            connections.broadcast(session, new NotificationMessage(String.format("%s is in checkmate.", game.getTeamTurn())), gameID);
+        } else if (game.isInStalemate(game.getTeamTurn())) {
+            connections.broadcast(session, new NotificationMessage(String.format("%s is in stalemate.", game.getTeamTurn())), gameID);
+        } else if (game.isInCheck(game.getTeamTurn())) {
+            connections.broadcast(session, new NotificationMessage(String.format("%s is in check.", game.getTeamTurn())), gameID);
+        }
+
     }
 
 
@@ -155,27 +230,4 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
 
-//    private void enter(String visitorName, Session session) throws IOException {
-//        connections.add(session);
-//        var message = String.format("%s is in the shop", visitorName);
-//        var notification = new Notification(Notification.Type.ARRIVAL, message);
-//        connections.broadcast(session, notification);
-//    }
-//
-//    private void exit(String visitorName, Session session) throws IOException {
-//        var message = String.format("%s left the shop", visitorName);
-//        var notification = new Notification(Notification.Type.DEPARTURE, message);
-//        connections.broadcast(session, notification);
-//        connections.remove(session);
-//    }
-//
-//    public void makeNoise(String petName, String sound) throws ResponseException {
-//        try {
-//            var message = String.format("%s says %s", petName, sound);
-//            var notification = new Notification(Notification.Type.NOISE, message);
-//            connections.broadcast(null, notification);
-//        } catch (Exception ex) {
-//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-//        }
-//    }
 }

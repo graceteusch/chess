@@ -272,7 +272,7 @@ public class SqlDataAccess implements DataAccessObject {
             }
         } else {
             String gameJson = new Gson().toJson(game);
-            var statement = "UPDATE gamedata SET game = ? WHERE game ID = ?";
+            var statement = "UPDATE gamedata SET game = ? WHERE gameID = ?";
             executeUpdate(statement, gameJson, gameID);
         }
     }

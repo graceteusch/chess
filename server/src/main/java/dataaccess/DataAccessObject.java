@@ -34,5 +34,4 @@ public interface DataAccessObject {
     void updateGame(int gameID, String playerColor, String username, ChessGame game) throws DataAccessException;
 
     void clearGames() throws DataAccessException;
-
 }
