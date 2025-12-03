@@ -26,25 +26,26 @@ public class BoardDrawer {
         int rowIncrease;
 
         if (whitePerspective) {
-            colNames = "\n   a  b  c  d  e  f  g  h  ";
+            colNames = "   a  b  c  d  e  f  g  h  ";
             rowStart = 8;
             rowEnd = 1;
             rowIncrease = -1;
         } else {
-            colNames = "\n   a  b  c  d  e  f  g  h  ";
+            colNames = "   h  g  f  e  d  c  b  a  ";
             rowStart = 1;
             rowEnd = 8;
             rowIncrease = 1;
         }
-
+        System.out.print(RESET_TEXT_COLOR);
         System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
+        System.out.println();
         System.out.println(colNames);
-        for (int i = rowStart; i >= rowEnd; i += rowIncrease) {
+        for (int i = rowStart; whitePerspective ? i >= rowEnd : i <= rowEnd; i += rowIncrease) {
             System.out.print(RESET_BG_COLOR);
             System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
 
             System.out.print(i + " ");
-            for (int j = 1; j <= 8; j++) {
+            for (int j = rowEnd; whitePerspective ? j <= 8 : j >= 1; j += (rowIncrease * -1)) {
                 ChessPosition currPos = new ChessPosition(i, j);
                 boolean highlight = false;
                 if (highlightSquares != null && highlightSquares.contains(currPos)) {
@@ -75,6 +76,7 @@ public class BoardDrawer {
         }
         System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
         System.out.println(colNames);
+        System.out.print(RESET_TEXT_COLOR);
 
     }
 

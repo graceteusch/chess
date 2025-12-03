@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.AuthData;
@@ -12,7 +13,7 @@ import websocket.messages.ServerMessage;
 
 import java.util.*;
 
-import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
+import static ui.EscapeSequences.*;
 
 public class GameplayClient implements Client {
 
@@ -66,6 +67,7 @@ public class GameplayClient implements Client {
     }
 
     public void onMessage(String message) {
+        System.out.print(RESET_TEXT_COLOR);
         System.out.print(SET_TEXT_COLOR_GREEN);
         ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
         if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
@@ -81,6 +83,9 @@ public class GameplayClient implements Client {
             ErrorMessage error = new Gson().fromJson(message, ErrorMessage.class);
             System.out.println(error.getMessage());
         }
+        System.out.print(RESET_TEXT_COLOR);
+
+        repl.printPrompt();
     }
 
     private String redrawBoard(String[] params) {
@@ -102,8 +107,10 @@ public class GameplayClient implements Client {
             ws.leaveGame(gameID, currUser);
             repl.setClient(new PostloginClient(server, repl, currUser));
             repl.setState(ReplState.LOGGEDIN);
+            System.out.print(RESET_TEXT_COLOR);
             return "You left the game.";
         } else {
+            System.out.print(RESET_TEXT_COLOR);
             System.out.println("Invalid input");
             throw new ServerResponseException("To leave a game, please use the following format: leave");
         }
@@ -111,7 +118,42 @@ public class GameplayClient implements Client {
 
     private String makeMove(String[] params) {
         if (color == null) {
+            System.out.print(RESET_TEXT_COLOR);
             return "You cannot make moves as an observer.";
+        }
+
+        if (params.length == 3) {
+            // pawn promotion
+            String currPiecePosition = params[0];
+            String newPosition = params[1];
+            String promotionPiece = params[2];
+
+            ChessPosition currPos = getChessPosition(currPiecePosition);
+            ChessPosition newPos = getChessPosition(newPosition);
+
+            // check if this is actually a valid pawn promotion move
+            if ((currPos.getRow() == 2 && newPos.getRow() == 1) || (currPos.getRow() == 7 && newPos.getRow() == 8)) {
+                ChessPiece.PieceType promotionType;
+                if (promotionPiece.equalsIgnoreCase("queen")) {
+                    promotionType = ChessPiece.PieceType.QUEEN;
+                } else if (promotionPiece.equalsIgnoreCase("rook")) {
+                    promotionType = ChessPiece.PieceType.ROOK;
+                } else if (promotionPiece.equalsIgnoreCase("bishop")) {
+                    promotionType = ChessPiece.PieceType.BISHOP;
+                } else if (promotionPiece.equalsIgnoreCase("knight")) {
+                    promotionType = ChessPiece.PieceType.KNIGHT;
+                } else {
+                    throw new ServerResponseException("Please provide a valid promotion piece type (queen/rook/bishop/knight)");
+                }
+
+                // make the promotion piece move
+                ChessMove move = new ChessMove(currPos, newPos, promotionType);
+
+                ws.makeMove(gameID, currUser, move);
+                return "";
+            } else {
+                throw new ServerResponseException("This is not a valid pawn promotion move.");
+            }
         }
 
         if (params.length == 2) {
@@ -120,13 +162,15 @@ public class GameplayClient implements Client {
 
             ChessPosition currPos = getChessPosition(currPiecePosition);
             ChessPosition newPos = getChessPosition(newPosition);
-            //TODO: include implementation for promotion (??)
+
             ChessMove move = new ChessMove(currPos, newPos, null);
 
             ws.makeMove(gameID, currUser, move);
 
-            return String.format("You made the move" + params[0] + " " + params[1] + ".");
+            return "";
+            //return String.format("You made the move" + params[0] + " " + params[1] + ".");
         } else {
+            System.out.print(RESET_TEXT_COLOR);
             System.out.println("Invalid input");
             throw new ServerResponseException("To make a move, use the following format: a2 a4 (for example)");
         }
@@ -134,11 +178,12 @@ public class GameplayClient implements Client {
 
     private ChessPosition getChessPosition(String input) {
         if (input.length() != 2) {
+            System.out.print(RESET_TEXT_COLOR);
             System.out.println("Invalid input");
             throw new ServerResponseException("To make a move, use the following format: a2 a4 (for example)");
         }
         char colChar = input.charAt(0);
-        char rowChar = input.charAt(0);
+        char rowChar = input.charAt(1);
 
         // check if col char can be converted to a valid number
         int col = colToInt(colChar);
@@ -148,10 +193,12 @@ public class GameplayClient implements Client {
         try {
             row = Integer.parseInt(String.valueOf(rowChar));
         } catch (NumberFormatException ex) {
+            System.out.print(RESET_TEXT_COLOR);
             System.out.println("Invalid input");
             throw new ServerResponseException("To make a move, use the following format: a2 a4 (for example)");
         }
         if (row < 1 || row > 8) {
+            System.out.print(RESET_TEXT_COLOR);
             System.out.println("Invalid input");
             throw new ServerResponseException("Make sure you specify a valid position on the board (columns a-h, rows 1-8)");
         }
@@ -176,27 +223,28 @@ public class GameplayClient implements Client {
 
     private String resign(String[] params) {
         if (color == null) {
+            System.out.print(RESET_TEXT_COLOR);
             return "You cannot resign as an observer.";
         }
 
         if (params.length == 0) {
+            System.out.print(SET_TEXT_COLOR_BLUE);
             System.out.println("Are you sure you want to resign? Type yes or no.");
+            System.out.print(RESET_TEXT_COLOR);
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
+            String result = line.trim();
 
-            String[] resignTokens = line.toLowerCase().split(" ");
-            String resignCmd = (resignTokens.length > 0) ? resignTokens[0] : "help";
-            String[] resignParams = Arrays.copyOfRange(resignTokens, 1, resignTokens.length);
-            if (resignParams.length != 1) {
-                return "Not resigning.";
-            }
-            if (!resignParams[0].equalsIgnoreCase("yes")) {
+            if (!result.equalsIgnoreCase("yes")) {
+                System.out.print(SET_TEXT_COLOR_BLUE);
                 return "Not resigning.";
             }
 
             ws.resign(gameID, currUser);
+            System.out.print(SET_TEXT_COLOR_BLUE);
             return "You have resigned from the game.";
         } else {
+            System.out.print(RESET_TEXT_COLOR);
             System.out.println("Invalid input");
             throw new ServerResponseException("To resign from a game, please use the following format: resign");
         }
@@ -206,6 +254,9 @@ public class GameplayClient implements Client {
     private String highlightMoves(String[] params) {
         if (params.length == 1) {
             ChessPosition position = getChessPosition(params[0]);
+            if (currGame.getBoard().getPiece(position) == null) {
+                throw new ServerResponseException("There is no piece at that position.");
+            }
             Collection<ChessMove> legalMoves = currGame.validMoves(position);
             ArrayList<ChessPosition> squaresToHighlight = new ArrayList<>();
             squaresToHighlight.add(position);
@@ -222,6 +273,7 @@ public class GameplayClient implements Client {
             BoardDrawer.drawPerspective(currGame.getBoard(), whitePerspective, squaresToHighlight);
             return "";
         } else {
+            System.out.print(RESET_TEXT_COLOR);
             System.out.println("Invalid input");
             throw new ServerResponseException("To highlight valid moves, please use the following format: highlight a2");
         }
@@ -235,6 +287,7 @@ public class GameplayClient implements Client {
                 - Redraw - redraw the game board
                 - Leave - leave the game
                 - Move <PIECE POSITION> <POSITION TO MOVE TO> - make a move. Use the format 'a2 a4' to represent the move you want to make.
+                  If moving a pawn to the end of the board, include <PROMOTION PIECE> (queen/rook/bishop/knight).
                 - Resign - Forfeit the game
                 - Highlight <PIECE POSITION> - highlight all legal moves for a given piece. Use the format 'a2' to represent the piece.
                 - Help - list all possible commands

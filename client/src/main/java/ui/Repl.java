@@ -30,20 +30,30 @@ public class Repl {
         var result = "";
         while (!result.equals("Quit")) {
             //printPrompt();
+            System.out.print(RESET_TEXT_COLOR);
             System.out.print(SET_TEXT_COLOR_MAGENTA);
             System.out.print("[" + state + "] >>>> ");
+
+            System.out.print(RESET_TEXT_COLOR);
             System.out.print(SET_TEXT_COLOR_BLUE);
             String line = scanner.nextLine();
             try {
                 result = client.evaluate(line);
                 System.out.println(result);
             } catch (Throwable ex) {
-                // if there input is invalid, this should be the error that is caught and message that is printed out to the user
+                // if the input is invalid, this should be the error that is caught and message that is printed out to the user
+                System.out.print(SET_TEXT_COLOR_WHITE);
                 var msg = ex.toString();
                 System.out.println(msg);
             }
         }
         System.out.println(SET_TEXT_COLOR_BLUE + "Goodbye :(");
+    }
+
+    public void printPrompt() {
+        System.out.print(RESET_TEXT_COLOR);
+        System.out.print(SET_TEXT_COLOR_MAGENTA);
+        System.out.print("[" + state + "] >>>> ");
     }
 }
 

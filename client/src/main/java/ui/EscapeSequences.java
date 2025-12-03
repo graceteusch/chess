@@ -50,7 +50,7 @@ public class EscapeSequences {
     public static final String SET_BG_COLOR_LIGHT_BLUE = UNICODE_ESCAPE + "[48;2;32;176;255m";
     public static final String SET_BG_COLOR_DARK_BLUE = UNICODE_ESCAPE + "[48;2;7;89;133m";
 
-    public static final String SET_BG_COLOR_LIGHT_YELLOW = UNICODE_ESCAPE + "[48;2;255;215;105m";
+    public static final String SET_BG_COLOR_LIGHT_YELLOW = UNICODE_ESCAPE + "[48;2;255;224;138m";
     public static final String SET_BG_COLOR_DARK_YELLOW = UNICODE_ESCAPE + "[48;2;255;198;41m";
 
 

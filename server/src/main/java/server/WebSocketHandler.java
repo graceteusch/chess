@@ -11,7 +11,6 @@ import io.javalin.websocket.*;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
-import org.jetbrains.annotations.NotNull;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
@@ -19,9 +18,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
-import java.util.Collection;
 
 import static chess.ChessGame.TeamColor.*;
 
@@ -36,7 +33,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleConnect(WsConnectContext ctx) {
+    public void handleConnect(WsConnectContext ctx) throws DataAccessException {
         System.out.println("Websocket connected");
         ctx.enableAutomaticPings();
     }
@@ -131,6 +128,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String whiteUser = dataAccess.getGame(gameID).whiteUsername();
         String blackUser = dataAccess.getGame(gameID).blackUsername();
 
+        // check if game is already over
+        if (game.getGameStatus()) {
+            ServerMessage error = new ErrorMessage("Error: this game is over");
+            sendMessage(error, session);
+            return;
+        }
+
         // check whose turn it is
         ChessGame.TeamColor currTurn = game.getTeamTurn();
         if (currTurn.equals(WHITE) && !user.equals(whiteUser)) {
@@ -143,8 +147,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
-        // check if the piece being moved is the correct color
+
         ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+
+        if (piece == null) {
+            ServerMessage error = new ErrorMessage("Error: invalid move (no piece at start position)");
+            sendMessage(error, session);
+            return;
+        }
+
+        // check if the piece being moved is the correct color
         if (currTurn.equals(WHITE) && piece.getTeamColor() != WHITE) {
             ServerMessage error = new ErrorMessage("Error: trying to move opponent's piece");
             sendMessage(error, session);
@@ -153,6 +165,22 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             ServerMessage error = new ErrorMessage("Error: trying to move opponent's piece");
             sendMessage(error, session);
             return;
+        }
+
+
+        if (move.getPromotionPiece() != null && piece.getPieceType() != ChessPiece.PieceType.PAWN) {
+            sendMessage(new ErrorMessage("Error: only pawns can be promoted"), session);
+            return;
+        }
+
+        if (move.getPromotionPiece() == null && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            if (piece.getTeamColor() == WHITE && move.getStartPosition().getRow() == 7 && move.getEndPosition().getRow() == 8) {
+                sendMessage(new ErrorMessage("Error: when moving a pawn to the end of the board, you must provide a promotion piece type"), session);
+                return;
+            } else if (piece.getTeamColor() == BLACK && move.getStartPosition().getRow() == 2 && move.getEndPosition().getRow() == 1) {
+                sendMessage(new ErrorMessage("Error: when moving a pawn to the end of the board, you must provide a promotion piece type"), session);
+                return;
+            }
         }
 
         // make move (and catch InvalidException)
