@@ -147,8 +147,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
-
         ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+
 
         if (piece == null) {
             ServerMessage error = new ErrorMessage("Error: invalid move (no piece at start position)");
@@ -201,8 +201,50 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         sendMessage(loadGame, session);
         connections.broadcast(session, loadGame, gameID);
 
+        int startCol = move.getStartPosition().getColumn();
+        String startColStr = "";
+        if (startCol == 1) {
+            startColStr = "a";
+        } else if (startCol == 2) {
+            startColStr = "b";
+        } else if (startCol == 3) {
+            startColStr = "c";
+        } else if (startCol == 4) {
+            startColStr = "d";
+        } else if (startCol == 5) {
+            startColStr = "e";
+        } else if (startCol == 6) {
+            startColStr = "f";
+        } else if (startCol == 7) {
+            startColStr = "g";
+        } else if (startCol == 8) {
+            startColStr = "h";
+        }
+        String startRow = String.valueOf(move.getStartPosition().getRow());
+
+        int endCol = move.getEndPosition().getColumn();
+        String endColStr = "";
+        if (endCol == 1) {
+            endColStr = "a";
+        } else if (endCol == 2) {
+            endColStr = "b";
+        } else if (endCol == 3) {
+            endColStr = "c";
+        } else if (endCol == 4) {
+            endColStr = "d";
+        } else if (endCol == 5) {
+            endColStr = "e";
+        } else if (endCol == 6) {
+            endColStr = "f";
+        } else if (endCol == 7) {
+            endColStr = "g";
+        } else if (endCol == 8) {
+            endColStr = "h";
+        }
+        String endRow = String.valueOf(move.getEndPosition().getRow());
+
         // Server sends a Notification message to all other clients in that game informing them what move was made.
-        connections.broadcast(session, new NotificationMessage(String.format("%s made the move %s.", user, move)), gameID);
+        connections.broadcast(session, new NotificationMessage(String.format("%s made the move %s%s -> %s%s.", user, startColStr, startRow, endColStr, endRow)), gameID);
 
         // If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
         if (game.isInCheckmate(game.getTeamTurn())) {

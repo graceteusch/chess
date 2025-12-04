@@ -1,15 +1,18 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
     public final ConcurrentHashMap<Integer, ArrayList<Session>> connections = new ConcurrentHashMap<>();
+    //public final ConcurrentHashMap<Integer, Map<Session, ChessGame.TeamColor>> connectionsColors = new ConcurrentHashMap<>();
 
     public void add(Session session, int gameID) {
         if (!connections.containsKey(gameID)) {
