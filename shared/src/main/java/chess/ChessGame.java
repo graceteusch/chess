@@ -96,43 +96,6 @@ public class ChessGame {
         return validMoves;
     }
 
-//    public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-//        // A move is valid if it is a "piece move" for the piece at the input location
-//        // and making that move would not leave the team’s king in danger of check.
-//
-//        // maybe - just create a 'version' of the board where the move has been done and then use the isInCheck function?
-//
-//        var validMoves = new HashSet<ChessMove>();
-//
-//        // if there is no piece at the start position, return null
-//        ChessPiece pieceToMove = board.getPiece(startPosition);
-//        if (pieceToMove == null) {
-//            return null;
-//        }
-//
-//        TeamColor currTeam = pieceToMove.getTeamColor();
-//
-//        Collection<ChessMove> pieceMoves = pieceToMove.pieceMoves(board, startPosition);
-//
-//        // for each move in the piece moves
-//        for (ChessMove move : pieceMoves) {
-//
-//            // move piece and check if it puts the board into check
-//            board.removePiece(startPosition, pieceToMove);
-//            ChessPiece capturedPiece = board.getPiece(move.getEndPosition()); // save the piece that is being captured
-//            board.addPiece(move.getEndPosition(), pieceToMove);
-//            if (!isInCheck(currTeam)) {
-//                validMoves.add(move);
-//            }
-//            // put piece back to original spot
-//            board.removePiece(move.getEndPosition(), pieceToMove);
-//            board.addPiece(move.getEndPosition(), capturedPiece); // add captured piece back to original spot
-//            board.addPiece(startPosition, pieceToMove);
-//        }
-//        return validMoves;
-//    }
-
-
     private ChessGame copyGame() {
         ChessGame copy = new ChessGame();
         copy.board = this.board.copyBoard();
