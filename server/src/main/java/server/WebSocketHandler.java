@@ -147,7 +147,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
-        ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+        ChessPiece piece = dataAccess.getGame(gameID).game().getBoard().getPiece(move.getStartPosition());
 
 
         if (piece == null) {
@@ -186,6 +186,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         // make move (and catch InvalidException)
         try {
             game.makeMove(move);
+            System.out.println("board after calling makeMove (in websocketHandler)");
+            System.out.println(game.getBoard());
         } catch (InvalidMoveException ex) {
             ServerMessage error = new ErrorMessage("Error: invalid move");
             sendMessage(error, session);
@@ -194,6 +196,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // update game in the db
         dataAccess.updateGame(gameID, null, null, game);
+        System.out.println("board in websocket handler post-update (from data access)");
+        System.out.println(dataAccess.getGame(gameID).game().getBoard());
 
         // Server sends a LOAD_GAME message to all clients in the game (including the root client) with an updated game.
         ChessGame updatedGame = dataAccess.getGame(gameID).game();
@@ -246,6 +250,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         // Server sends a Notification message to all other clients in that game informing them what move was made.
         connections.broadcast(session, new NotificationMessage(String.format("%s made the move %s%s -> %s%s.", user, startColStr, startRow, endColStr, endRow)), gameID);
 
+        System.out.println("Websocket handler - sending checkmate/check/stalemate notifications - current team turn: ");
+        System.out.println(game.getTeamTurn());
         // If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
         if (game.isInCheckmate(game.getTeamTurn())) {
             connections.broadcast(null, new NotificationMessage(String.format("%s is in checkmate.", game.getTeamTurn())), gameID);

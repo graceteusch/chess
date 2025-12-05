@@ -10,7 +10,7 @@ public class BoardDrawer {
 
     public static void drawBoard(ChessBoard board, ChessGame.TeamColor team) {
         System.out.print(ERASE_SCREEN);
-        if (team.equals(ChessGame.TeamColor.WHITE)) {
+        if (team == ChessGame.TeamColor.WHITE || team == null) {
             drawPerspective(board, true, null);
         } else {
             drawPerspective(board, false, null);

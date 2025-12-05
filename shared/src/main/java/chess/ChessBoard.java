@@ -69,6 +69,20 @@ public class ChessBoard {
         }
     }
 
+    public ChessBoard copyBoard() {
+        ChessBoard copy = new ChessBoard();
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPiece piece = this.getPiece(new ChessPosition(row, col));
+                if (piece != null) {
+                    ChessPiece cloned = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+                    copy.addPiece(new ChessPosition(row, col), cloned);
+                }
+            }
+        }
+        return copy;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
